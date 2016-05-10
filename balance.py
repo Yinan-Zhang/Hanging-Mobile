@@ -1,16 +1,22 @@
 import sys, os
 from geometry2d import *
-from math import sqrt
+from math import sqrt, acos, cos, sin
 
 def find_balance_point( mass1, mass2, pos1, pos2 ):
     '''Find the balance point for a cross bar that hangs two points mass.
     We construct cross bars to be a quarter of a circle.
+    pos1 is one the left and pos2 is on the right.
     Return:
         1. radius of the quarter-circle cross bar
         2. angle indicates the balance point. (angle from the right-end point to the balance point)
     '''
-    pass;
+    center, radius = find_quarter_circle(pos1, pos2);
 
+    # The angle between the right-end point and the horizon.
+    phi = acos( ( pos2.x-center.x ) / float(radius) );
+    cos_alpha_phi = ( (pos1.x * mass1 + pos2.x * mass2)/(mass1+mass2) - center.x ) / radius;
+    alpha = acos(cos_alpha_phi) - phi;
+    return radius, alpha
 
 def find_quarter_circle(point1, point2):
     '''Return the center and radius of the quarter circle'''
