@@ -18,6 +18,12 @@ def find_balance_point( mass1, mass2, pos1, pos2 ):
     alpha = acos(cos_alpha_phi) - phi;
     return radius, alpha
 
+def evaluate_balance_point(self, mass1, mass2, pos1, pos2, pos_b):
+    '''Given two points mass, and a balance point (at pos_b), evaluate how much is the cross-bar
+    going to rotate to keep them balanced, if the balance point is shifted a little bit.'''
+    pass;
+
+
 def find_quarter_circle(point1, point2):
     '''Return the center and radius of the quarter circle'''
     high = None; low = None;
