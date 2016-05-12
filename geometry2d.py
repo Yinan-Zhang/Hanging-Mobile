@@ -1,12 +1,15 @@
 import sys, os
-from shapely import Point
+from math import sqrt
+
+from shapely.geometry import Polygon, Point
+
 
 def normalize(vec):
-    length = math.sqrt(vec[0]**2 + vec[1]**2)
+    length = sqrt(vec[0]**2 + vec[1]**2)
     return (vec[0]/length, vec[1]/length)
 
 def length(point_a, point_b):
-    return math.sqrt( (point_a.x-point_b.x)**2 + (point_a.y-point_b.y)**2 );
+    return sqrt( (point_a.x-point_b.x)**2 + (point_a.y-point_b.y)**2 );
 
 def vector(point_a, point_b):
     '''return the vector from point a to b'''
@@ -40,4 +43,4 @@ class Segment:
             return Point(normalize((-b1, -b2)));
 
     def length(self):
-        return math.sqrt( (self.vert1.x-self.vert2.x)**2 + (self.vert1.y-self.vert2.y)**2 );
+        return sqrt( (self.vert1.x-self.vert2.x)**2 + (self.vert1.y-self.vert2.y)**2 );
