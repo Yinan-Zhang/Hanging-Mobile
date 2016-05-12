@@ -1,5 +1,5 @@
 '''
-Given a polyhedral, assume the mass is evenly distributed, find the center of mass. 
+Given a polyhedral, assume the mass is evenly distributed, find the center of mass.
 '''
 from shapely.geometry import Polygon
 
@@ -17,7 +17,7 @@ def mass_center(polygon):
 		A = A + (point_list[i][0]*point_list[i+1][1]-point_list[i+1][0]*point_list[i][1])
 		Cx = Cx + (point_list[i][0]*point_list[i+1][1]-point_list[i+1][0]*point_list[i][1])*(point_list[i][0]+point_list[i+1][0])
 		Cy = Cy + (point_list[i][0]*point_list[i+1][1]-point_list[i+1][0]*point_list[i][1])*(point_list[i][1]+point_list[i+1][1])
-	
+
 	A = A/2.0
 	Cx = Cx/6.0/A
 	Cy = Cy/6.0/A
@@ -28,5 +28,8 @@ def test_mass_center():
 	polygon1 = Polygon([(0, 0), (0, 1), (1, 1), (1, 0)])
 	print mass_center(polygon1), "which should be [0.5, 0.5]"
 
-# test_mass_center()
-		
+
+# Given 2 points (A, B) in 3D, and a gravity vector g
+# calcuate the matrix M that maps them into a 2D space, where
+# A is at (0,0), A->B is along x-axis.
+# And matrix M' that maps them back to the 3D space.
