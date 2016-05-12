@@ -10,3 +10,4 @@ A set of cross bars and balancing points will be generated.
 
 ### Libraries
 * [Shapely](http://toblerity.org/shapely/) A 2D geometry library. 
+* In order to install Shapely, first install GEOS `brew install geos`
