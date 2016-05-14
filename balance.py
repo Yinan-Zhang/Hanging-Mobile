@@ -49,12 +49,12 @@ def evaluate_hanging_point(mass1, mass2, pos1, pos2, pos_b):
     len_1 = length(pos1, pos_b);
     len_2 = length(pos2, pos_b);
     len_12= length(pos1, pos2);
-    print (len_1**2 + len_2**2 - len_12**2)/ 2 * len_1 * len_2
-    angle = acos( (len_1**2 + len_2**2 - len_12**2)/ 2 * len_1 * len_2 ); # the angle betweel two side points to the balance point
 
-    balance_angle = balance_bin_search(mass1, mass2, len1, len2, 0, pi/2.0, angle, 0.001 );
-    heigh1 = len1 * sin(balance_angle);
-    heigh2 = len2 * sin(pi - balance_angle - angle);
+    angle = acos( (len_1**2 + len_2**2 - len_12**2)/ (2 * len_1 * len_2) ); # the angle betweel two side points to the balance point
+
+    balance_angle = balance_bin_search(mass1, mass2, len_1, len_2, 0, pi/2.0, angle, 0.001 );
+    heigh1 = len_1 * sin(balance_angle);
+    heigh2 = len_2 * sin(pi - balance_angle - angle);
 
     return fabs(pos1.y - heigh1) + fabs(pos2.y-heigh2);
 
