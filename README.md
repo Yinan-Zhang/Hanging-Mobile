@@ -13,7 +13,7 @@ A set of cross bars and balancing points will be generated.
 * In order to install Shapely, first install GEOS `brew install geos`
 
 
-###### Result format
+#### Result format
 
 ```
 bars
@@ -33,3 +33,8 @@ tree
 4
 
 ```
+
+**Explain:**
+
+<img align="left" src="https://github.com/Yinan-Zhang/Hanging-Mobile/blob/master/doc/IMG_0685.JPG" width="300">
+<img align="right" src="https://github.com/Yinan-Zhang/Hanging-Mobile/blob/master/doc/IMG_0686.JPG" width="300">
