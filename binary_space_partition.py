@@ -14,15 +14,22 @@ def kdtree(point_list, depth=0):
     # Select axis based on depth so that axis cycles through all valid values
     axis = depth % k
 
+    if(len(point_list)==1):
+        return Node(
+        location=point_list[0],
+        left_child=None,
+        right_child=None
+    )
+
     # Sort point list and choose median as pivot element
     point_list.sort(key=itemgetter(axis))
     median = len(point_list) // 2 # choose median
 
     # Create node and construct subtrees
     return Node(
-        location=point_list[median],
+        location=-1,
         left_child=kdtree(point_list[:median], depth + 1),
-        right_child=kdtree(point_list[median + 1:], depth + 1)
+        right_child=kdtree(point_list[median:], depth + 1)
     )
 
 def main():
