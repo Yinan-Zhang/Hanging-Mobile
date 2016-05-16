@@ -3,6 +3,7 @@ from balance import *
 from shapely.geometry import Polygon, Point
 from math import pi
 import binary_space_partition
+import constants
 
 def test():
     pos1 = Point( -10, 0 );
@@ -61,8 +62,10 @@ def buildTree(tree_as_list, centroid_list, mass_list, node_id_ref):
         rv.pos = pos
         rv.phi = phi
         
-        rv.mass = rv.left.mass + rv.right.mass
-        print rv.node_id, rv.pos, rv.radius, rv.phi, rv.alpha, rv.left.node_id, rv.right.node_id
+        rv.mass = rv.left.mass + rv.right.mass + constants.DENSITY * rv.radius * pi / 2.0 # Plus the mass of the bar 
+        cord_to_print = list(rv.pos.coords)
+        output_list = [rv.node_id, cord_to_print[0][0], cord_to_print[0][1], rv.radius, rv.phi, rv.alpha, rv.left.node_id, rv.right.node_id]
+        print ';'.join(map(str,output_list))
         return rv
     else:#leaf
         rv = TreeNode(node_id_ref[0])
@@ -70,7 +73,9 @@ def buildTree(tree_as_list, centroid_list, mass_list, node_id_ref):
         rv.pos = Point(tree_as_list[0])
         idx = centroid_list.index(tree_as_list[0])
         rv.mass = mass_list[idx]
-        print rv.node_id, rv.pos 
+        cord_to_print = list(rv.pos.coords)
+        output_list = [rv.node_id, cord_to_print[0][0], cord_to_print[0][1]]
+        print ';'.join(map(str,output_list))
         return rv
 
 def main():
