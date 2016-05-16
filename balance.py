@@ -19,7 +19,7 @@ def find_balance_point( mass1, mass2, pos1, pos2 ):
     alpha = acos(cos_alpha_phi) - phi;
 
     point = Point(center.x + radius * cos(phi+alpha), center.y + radius * sin(phi+alpha));
-    return center, radius, alpha, point
+    return center, radius, phi, alpha, point
 
 def evaluate_balance_point(mass1, mass2, pos1, pos2, pos_b, center, radius, alpha):
     '''

@@ -9,7 +9,7 @@ def test():
     pos2 = Point( 10,  0 );
     mass1 = 10;
     mass2 = 10;
-    center, radius, alpha, balance_point = find_balance_point(mass1, mass2, pos1, pos2);
+    center, radius, phi, alpha, balance_point = find_balance_point(mass1, mass2, pos1, pos2);
 
     print center, radius, alpha, balance_point
 
@@ -53,12 +53,13 @@ def buildTree(tree_as_list, centroid_list, mass_list, node_id_ref):
         node_id_ref[0]+=1
         rv.left = buildTree(tree_as_list[1], centroid_list, mass_list, node_id_ref)
         rv.right = buildTree(tree_as_list[2], centroid_list, mass_list, node_id_ref)
-        center, radius, alpha, pos = find_balance_point(rv.left.mass, rv.right.mass, rv.left.pos, rv.right.pos);
+        center, radius, phi, alpha, pos = find_balance_point(rv.left.mass, rv.right.mass, rv.left.pos, rv.right.pos);
         
         rv.center = center
         rv.radius = radius
         rv.alpha = alpha
         rv.pos = pos
+        rv.phi = phi
         
         rv.mass = rv.left.mass + rv.right.mass
         print rv.node_id, rv.pos, rv.radius, rv.phi, rv.alpha, rv.left.node_id, rv.right.node_id
