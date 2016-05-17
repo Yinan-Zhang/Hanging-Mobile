@@ -9,7 +9,7 @@
 <script type="text/javascript">
 
 var HEIGHT = 600;
-var STIFF = 0.6
+var STIFF = 0.85
 
 function Start() {
 
@@ -19,15 +19,15 @@ function Start() {
     var vertices = [];
     for(var i = 0; i <= Math.PI/2.0; i += Math.PI/180.0)
     {
-      x_ = center.x + (radius+2) * Math.cos(phi+i)
-      y_ = center.y + (radius+2) * Math.sin(phi+i)
+      x_ = center.x + (radius+0.5) * Math.cos(phi+i)
+      y_ = center.y + (radius+0.5) * Math.sin(phi+i)
       vertices.push({x:x_,y:HEIGHT - y_});
     }
 
     for(var i = Math.PI/2.0; i > 0; i -= Math.PI/180)
     {
-      x_ = center.x + (radius-2) * Math.cos(phi+i)
-      y_ = center.y + (radius-2) * Math.sin(phi+i)
+      x_ = center.x + (radius-0.5) * Math.cos(phi+i)
+      y_ = center.y + (radius-0.5) * Math.sin(phi+i)
       vertices.push({x:x_,y: HEIGHT - y_});
     }
 
@@ -36,9 +36,9 @@ function Start() {
     var bar = Matter.Body.create({
       position: Matter.Vertices.centre(vertices),
       vertices: vertices,
-      density : 0.00001,
-      isStatic: false,
-      frictionAir: 0.005,
+      density : 0.001,
+      isSleeping: false,
+      frictionAir: 0.05,
       collisionFilter: { group: group }
     });
 
@@ -48,7 +48,7 @@ function Start() {
   function create_box(left_bottom, width, height){
     var center = {x:left_bottom.x + width/2.0, y: HEIGHT-left_bottom.y-height/2.0}
     group = Matter.Body.nextGroup(true);
-    var box = Bodies.rectangle(left_bottom.x, HEIGHT-left_bottom.y, width, height, {position: center, density: 0.001, frictionAir: 0.005, collisionFilter: { group: group }});
+    var box = Bodies.rectangle(left_bottom.x, HEIGHT-left_bottom.y, width, height, {position: center, isSleeping:false, density: 0.00001, frictionAir: 0.05, collisionFilter: { group: group }});
     console.log(box.mass)
     return box;
   }
@@ -67,10 +67,9 @@ function Start() {
                           bodyB: bar,
                           pointA: ceil_position,
                           pointB: offset,
-                          stiffness: STIFF+0.5
+                          stiffness: STIFF+1
                       })
-    Composite.add(composite,constraint);
-    Composite.add(composite,bar);
+    return constraint
   }
 
   // Hang bar2 to the left side of bar1
@@ -79,8 +78,8 @@ function Start() {
                          bar2, center2, radius2, phi2, alpha2 ){
     balance_point = { x: center2.x + radius2 * Math.cos(phi2+alpha2),
                       y: HEIGHT - (center2.y + radius2 * Math.sin(phi2+alpha2)) };
-    left_point    = { x: center1.x + radius1 * Math.cos(phi1+Math.PI/2 - 0.01),
-                      y: HEIGHT - (center1.y + radius1 * Math.sin(phi1+Math.PI/2-0.01)) }
+    left_point    = { x: center1.x + radius1 * Math.cos(phi1+Math.PI/2),
+                      y: HEIGHT - (center1.y + radius1 * Math.sin(phi1+Math.PI/2)) }
 
     centroid1 = Matter.Vertices.centre(bar1.vertices)
 
@@ -97,8 +96,7 @@ function Start() {
                           stiffness: STIFF
                       })
 
-    Composite.add(composite,constraint);
-    Composite.add(composite,bar2);
+    return constraint
   }
 
   // Hang bar2 to the right side of bar1
@@ -107,8 +105,8 @@ function Start() {
                          bar2, center2, radius2, phi2, alpha2 ){
     balance_point = { x: center2.x + radius2 * Math.cos(phi2+alpha2),
                       y: HEIGHT - (center2.y + radius2 * Math.sin(phi2+alpha2)) };
-    right_point    = { x: center1.x + radius1 * Math.cos(phi1+0.01),
-                      y: HEIGHT - (center1.y + radius1 * Math.sin(phi1+0.01)) }
+    right_point    = { x: center1.x + radius1 * Math.cos(phi1),
+                      y: HEIGHT - (center1.y + radius1 * Math.sin(phi1)) }
 
     centroid1 = Matter.Vertices.centre(bar1.vertices)
 
@@ -125,8 +123,7 @@ function Start() {
                           stiffness: STIFF
                       })
 
-    Composite.add(composite,constraint);
-    Composite.add(composite,bar2);
+    return constraint
   }
 
   // Hang an object to the left side of a given bar
@@ -135,8 +132,8 @@ function Start() {
                          bar, center, radius, phi,
                          object, hanging_offset){
 
-    left_point    = { x: center.x + radius * Math.cos(phi+Math.PI/2-0.01),
-                      y: HEIGHT - (center.y + radius * Math.sin(phi+Math.PI/2-0.01)) }
+    left_point    = { x: center.x + radius * Math.cos(phi+Math.PI/2),
+                      y: HEIGHT - (center.y + radius * Math.sin(phi+Math.PI/2)) }
 
     centroid = Matter.Vertices.centre(bar.vertices)
 
@@ -149,9 +146,7 @@ function Start() {
                           pointB: hanging_offset,
                           stiffness: STIFF
                       })
-    Composite.add(composite,constraint);
-    //Composite.add(composite,bar);
-    Composite.add(composite,object);
+    return constraint
   }
 
   // Hang an object to the right side of a given bar
@@ -160,8 +155,8 @@ function Start() {
                          bar, center, radius, phi,
                          object, hanging_offset){
 
-    right_point    = { x: center.x + radius * Math.cos(phi+0.01),
-                      y: HEIGHT - (center.y + radius * Math.sin(phi+0.01)) }
+    right_point    = { x: center.x + radius * Math.cos(phi),
+                      y: HEIGHT - (center.y + radius * Math.sin(phi)) }
 
     centroid = Matter.Vertices.centre(bar.vertices)
 
@@ -174,9 +169,7 @@ function Start() {
                           pointB: hanging_offset,
                           stiffness: STIFF
                       })
-    Composite.add(composite,constraint);
-    //Composite.add(composite,bar);
-    Composite.add(composite,object);
+    return constraint
   }
 
   // module aliases
@@ -202,54 +195,70 @@ function Start() {
 
 
   // create two boxes and a ground
-  var boxA = create_box({x:100, y:200}, 40, 80);
-  var boxB = create_box({x:250, y:200}, 40, 80);
-  var cross_bar = create_cross_bar({x:200,y:270}, 100, Math.PI/4);
+  var boxA = create_box({x:110, y:200}, 60, 100);
+  var boxB = create_box({x:250, y:200}, 50, 100);
+  var cross_bar = create_cross_bar({x:200,y:270}, 100, Math.PI/4.0);
 
-  var boxC = create_box({x:300, y:200}, 40, 80);
-  var boxD = create_box({x:490, y:200}, 40, 80);
+  var boxC = create_box({x:309, y:200}, 50, 100);
+  var boxD = create_box({x:450, y:200}, 60, 100);
 
   //Body.setMass(boxA, 50)
   //Body.setMass(boxB, 10)
 
-  var cross_bar2 = create_cross_bar({x:400,y:270}, 100, Math.PI/4);
+  var cross_bar2 = create_cross_bar({x:400,y:270}, 100, Math.PI/4.0);
 
-  var cross_bar3 = create_cross_bar({x:300,y:300}, 200, Math.PI/4);
+  var cross_bar3 = create_cross_bar({x:300,y:300}, 150, Math.PI/4.0);
 
   //var ground = Bodies.rectangle(400, 610, 810, 60, { isStatic: true });
 
   hanging_mobile_composite = Composite.create();
 
+  c1 = hang_bar_to_ceil(hanging_mobile_composite, cross_bar3, {x:300,y:300}, 150, Math.PI/4, Math.PI/4.0, {x:300, y:10})
+
+  c2 = hang_bar_to_bar_right(hanging_mobile_composite,
+                       cross_bar3, {x:300,y:300}, 150, Math.PI/4,
+                       cross_bar2, {x:400,y:270}, 100, Math.PI/4.0, Math.PI/4.0)
+  c3 = hang_bar_to_bar_left(hanging_mobile_composite,
+                       cross_bar3, {x:300,y:300}, 150, Math.PI/4,
+                       cross_bar, {x:200,y:270}, 100, Math.PI/4.0, Math.PI/4.0)
+
+
   //hang_bar_to_ceil(hanging_mobile_composite, cross_bar, {x:200,y:270}, 100, Math.PI/4, Math.PI/4.0-0.0, {x:200, y:100});
-  hang_object_to_bar_left(hanging_mobile_composite, cross_bar, {x:200,y:270}, 100, Math.PI/4.0, boxA, {x:0,y:-5})
-  hang_object_to_bar_right(hanging_mobile_composite, cross_bar, {x:200,y:270}, 100, Math.PI/4.0, boxB, {x:0,y:-5})
+  c4 = hang_object_to_bar_right(hanging_mobile_composite, cross_bar, {x:200,y:270}, 100, Math.PI/4.0, boxB, {x:0,y:-15})
+  c5 = hang_object_to_bar_left(hanging_mobile_composite, cross_bar, {x:200,y:270}, 100, Math.PI/4.0, boxA, {x:0,y:-15})
+
   //Body.setMass(cross_bar, boxA.mass + boxB.mass)
 
   //hang_bar_to_ceil(hanging_mobile_composite, cross_bar2, {x:400,y:270}, 100, Math.PI/4, Math.PI/4.0, {x:400, y:100});
-  hang_object_to_bar_left(hanging_mobile_composite, cross_bar2, {x:400,y:270}, 100, Math.PI/4.0, boxC, {x:0,y:-5})
-  hang_object_to_bar_right(hanging_mobile_composite, cross_bar2, {x:400,y:270}, 100, Math.PI/4.0, boxD, {x:0,y:-5})
-  //Body.setMass(cross_bar2, boxC.mass + boxD.mass)
+  c6 = hang_object_to_bar_left(hanging_mobile_composite, cross_bar2, {x:400,y:270}, 100, Math.PI/4.0, boxC, {x:0,y:-15})
+  c7 = hang_object_to_bar_right(hanging_mobile_composite, cross_bar2, {x:400,y:270}, 100, Math.PI/4.0, boxD, {x:0,y:-15})
+  Body.setMass(cross_bar2, boxC.mass + boxD.mass)
 
-  hang_bar_to_bar_left(hanging_mobile_composite,
-                       cross_bar3, {x:300,y:300}, 200, Math.PI/4,
-                       cross_bar, {x:200,y:270}, 100, Math.PI/4.0, Math.PI/4.0  )
-  hang_bar_to_bar_right(hanging_mobile_composite,
-                       cross_bar3, {x:300,y:300}, 200, Math.PI/4,
-                       cross_bar2, {x:400,y:270}, 100, Math.PI/4.0, Math.PI/4.0 )
+  Body.setMass(boxA, 20)
+  Body.setMass(boxB, 10)
+  Body.setMass(boxC, 10)
+  Body.setMass(boxD, 20)
 
-  hang_bar_to_ceil(hanging_mobile_composite, cross_bar3, {x:300,y:300}, 200, Math.PI/4, Math.PI/4.0, {x:300, y:10})
-
+  //Composite.add(hanging_mobile_composite, [c1,c2,c3,c4,c5,c6,c7])
+  //Composite.add(hanging_mobile_composite, [boxA,boxB,boxC,boxD,cross_bar,cross_bar2,cross_bar3])
 
   //World.add(engine.world, hanging_mobile_composite);
 
   // add all of the bodies to the world
-  World.add(engine.world, hanging_mobile_composite);
+  World.add(engine.world, [hanging_mobile_composite, boxA,boxB,boxC,boxD,cross_bar,cross_bar2,cross_bar3,c1,c2,c3,c4,c5,c6,c7 ]);
+
+  // run the renderer
+  Render.run(render);
 
   // run the engine
   Engine.run(engine);
 
-  // run the renderer
-  Render.run(render);
+  for(var i = 0; i < hanging_mobile_composite.bodies.length; i++)
+  {
+    hanging_mobile_composite.bodies[i].isSleeping = false;
+  }
+
+
 }
 </script>
 <body onload='Start()'>
