@@ -55,14 +55,14 @@ def buildTree(tree_as_list, centroid_list, mass_list, node_id_ref):
         rv.left = buildTree(tree_as_list[1], centroid_list, mass_list, node_id_ref)
         rv.right = buildTree(tree_as_list[2], centroid_list, mass_list, node_id_ref)
         center, radius, phi, alpha, pos = find_balance_point(rv.left.mass, rv.right.mass, rv.left.pos, rv.right.pos);
-        
+
         rv.center = center
         rv.radius = radius
         rv.alpha = alpha
         rv.pos = pos
         rv.phi = phi
-        
-        rv.mass = rv.left.mass + rv.right.mass + constants.DENSITY * rv.radius * pi / 2.0 # Plus the mass of the bar 
+
+        rv.mass = rv.left.mass + rv.right.mass + constants.DENSITY * rv.radius * pi / 2.0 # Plus the mass of the bar
         cord_to_print = list(rv.pos.coords)
         output_list = [rv.node_id, cord_to_print[0][0], cord_to_print[0][1], rv.radius, rv.phi, rv.alpha, rv.left.node_id, rv.right.node_id]
         print ';'.join(map(str,output_list))
