@@ -185,7 +185,7 @@ function Start() {
 
   // create an engine
   var engine = Engine.create();
-  engine.world.gravity.y = 9.8
+  engine.world.gravity.y = 0.0
 
   // create a renderer
   var render = Render.create({
@@ -199,7 +199,7 @@ function Start() {
   var boxB = create_box({x:250, y:200}, 50, 100);
   var cross_bar = create_cross_bar({x:200,y:270}, 100, Math.PI/4.0);
 
-  var boxC = create_box({x:309, y:200}, 50, 100);
+  var boxC = create_box({x:310, y:200}, 50, 100);
   var boxD = create_box({x:450, y:200}, 60, 100);
 
   //Body.setMass(boxA, 50)
@@ -207,19 +207,19 @@ function Start() {
 
   var cross_bar2 = create_cross_bar({x:400,y:270}, 100, Math.PI/4.0);
 
-  var cross_bar3 = create_cross_bar({x:300,y:300}, 150, Math.PI/4.0);
+  var cross_bar3 = create_cross_bar({x:300,y:300}, 170, Math.PI/4.0);
 
   //var ground = Bodies.rectangle(400, 610, 810, 60, { isStatic: true });
 
   hanging_mobile_composite = Composite.create();
 
-  c1 = hang_bar_to_ceil(hanging_mobile_composite, cross_bar3, {x:300,y:300}, 150, Math.PI/4, Math.PI/4.0, {x:300, y:10})
+  c1 = hang_bar_to_ceil(hanging_mobile_composite, cross_bar3, {x:300,y:300}, 170, Math.PI/4, Math.PI/4.0+0.4, {x:300, y:10})
 
   c2 = hang_bar_to_bar_right(hanging_mobile_composite,
-                       cross_bar3, {x:300,y:300}, 150, Math.PI/4,
+                       cross_bar3, {x:300,y:300}, 170, Math.PI/4,
                        cross_bar2, {x:400,y:270}, 100, Math.PI/4.0, Math.PI/4.0)
   c3 = hang_bar_to_bar_left(hanging_mobile_composite,
-                       cross_bar3, {x:300,y:300}, 150, Math.PI/4,
+                       cross_bar3, {x:300,y:300}, 170, Math.PI/4,
                        cross_bar, {x:200,y:270}, 100, Math.PI/4.0, Math.PI/4.0)
 
 
@@ -232,12 +232,13 @@ function Start() {
   //hang_bar_to_ceil(hanging_mobile_composite, cross_bar2, {x:400,y:270}, 100, Math.PI/4, Math.PI/4.0, {x:400, y:100});
   c6 = hang_object_to_bar_left(hanging_mobile_composite, cross_bar2, {x:400,y:270}, 100, Math.PI/4.0, boxC, {x:0,y:-15})
   c7 = hang_object_to_bar_right(hanging_mobile_composite, cross_bar2, {x:400,y:270}, 100, Math.PI/4.0, boxD, {x:0,y:-15})
-  Body.setMass(cross_bar2, boxC.mass + boxD.mass)
+  //Body.setMass(cross_bar2, boxC.mass + boxD.mass)
 
   Body.setMass(boxA, 20)
   Body.setMass(boxB, 10)
-  Body.setMass(boxC, 10)
+  Body.setMass(boxC, 20)
   Body.setMass(boxD, 20)
+  engine.world.gravity.y = 1
 
   //Composite.add(hanging_mobile_composite, [c1,c2,c3,c4,c5,c6,c7])
   //Composite.add(hanging_mobile_composite, [boxA,boxB,boxC,boxD,cross_bar,cross_bar2,cross_bar3])
