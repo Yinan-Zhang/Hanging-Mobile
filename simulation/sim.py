@@ -47,7 +47,7 @@ class CrossBar:
         def get_four_vertices(phi_, theta_):
             eps = 0.005
             r= self.radius;
-            width = self.radius * 0.001
+            width = self.radius * 0.01
             if phi_ < pi/2.0:
                 vert1 = get_point(phi_,  theta_ - eps, r-width)
                 vert2 = get_point(phi_,  theta_ + eps, r-width)
