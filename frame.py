@@ -62,20 +62,30 @@ def transfromto2D(Coor_3D_array): # Input format as [[1, 1, 1], [2, 2, 1], [2, 2
 	Coor_2D = Original_Coor_2D[0:2,:]
 	return Coor_2D.T, T
 
-def transfromto3D(Coor_2D, T):
-	Coor_2D = np.concatenate((Coor_2D.T, np.array([[0, 0, 0, 0]]), np.array([[1, 1, 1, 1]])), axis=0) 
+# input must be a numpy matrix
+def transfromto3D(Coor_2D, T, N):
+	Coor_2D = np.concatenate((Coor_2D.T, np.matrix(np.zeros(N)), np.matrix(np.ones(N))), axis=0) 
 	result = np.dot(T, Coor_2D)
 	result = result[0:3,:]
 	return result.T
 
 def test_transfromto2D():
+	# Four points case
 	Coor_3D_array = [[1, 1, 1], [2, 2, 1], [2, 2, 2], [2, 2, 1]]
 	Coor_2D, T = transfromto2D(Coor_3D_array)
 	print Coor_2D
 	print T
-	print transfromto3D(Coor_2D, T)
+	print transfromto3D(Coor_2D, T, 4)
+	print transfromto3D(np.matrix([0.59771698, 0.42264973]), T, 1)
 
-test_transfromto2D()
+	print "Two points case"
+	# Two points case
+	Coor_3D_array = [[1, 1, 1], [2, 2, 1], [2, 2, 2]]
+	Coor_2D, T = transfromto2D(Coor_3D_array)
+	print Coor_2D
+
+
+#test_transfromto2D()
 
 
 
