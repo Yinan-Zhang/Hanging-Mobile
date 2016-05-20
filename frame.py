@@ -1,6 +1,7 @@
 # Given 2 points (A, B) in 3D, and a gravity vector g
 # calcuate the matrix M that maps them into a 2D space, where
 import math
+import numpy as np
 
 # p3d defined as [[x1, y1, z1], [x2, y2, z2]]
 def global2local(p3dpair):
@@ -30,5 +31,51 @@ def test_frame_funcs():
 	print pair2d
 	p2d = [math.sqrt(2)/2.0, 0.5]
 	print local2global(p, p2d, pair2d) #[1.5, 1.5, 1.5]
+
+def normalize(v):
+    norm=np.linalg.norm(v)
+    if norm==0: 
+       return v
+    return v/norm
+
+# from: http://www.mathworks.com/matlabcentral/answers/81694-rotate-3d-plane-to-a-new-2d-coordinate-system
+def transfromto2D(Coor_3D_array): # Input format as [[1, 1, 1], [2, 2, 1], [2, 2, 2], [1, 1, 2]]
+	N = len(Coor_3D_array)
+	Coor_3D = np.matrix(Coor_3D_array)
+	origin = Coor_3D[0,:]
+	unito = normalize(origin)
+
+	localz = np.cross(Coor_3D[1,:]-origin, Coor_3D[2,:]-origin)
+	unitz = normalize(localz)
+
+	localx = Coor_3D[1,:]-origin
+	unitx = normalize(localx)
+
+	localy = np.cross(localz, localx)  
+	unity = normalize(localy) 
+
+	unit = np.array([[0, 0, 0, 1]])
+	T = np.concatenate((np.transpose(unitx), np.transpose(unity), np.transpose(unitz), np.transpose(unito)), axis=1)
+	T = np.concatenate((T, unit), axis=0)
+	C = np.concatenate((Coor_3D, np.ones((N,1))), axis=1)
+	Original_Coor_2D = np.linalg.solve(T, C.T)
+	Coor_2D = Original_Coor_2D[0:2,:]
+	return Coor_2D.T, T
+
+def transfromto3D(Coor_2D, T):
+	Coor_2D = np.concatenate((Coor_2D.T, np.array([[0, 0, 0, 0]]), np.array([[1, 1, 1, 1]])), axis=0) 
+	result = np.dot(T, Coor_2D)
+	result = result[0:3,:]
+	return result.T
+
+def test_transfromto2D():
+	Coor_3D_array = [[1, 1, 1], [2, 2, 1], [2, 2, 2], [2, 2, 1]]
+	Coor_2D, T = transfromto2D(Coor_3D_array)
+	print Coor_2D
+	print T
+	print transfromto3D(Coor_2D, T)
+
+test_transfromto2D()
+
 
 
