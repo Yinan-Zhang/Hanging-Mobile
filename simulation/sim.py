@@ -12,7 +12,7 @@ class Piece:
 
         for vert in vertices:
             self.verts.append( (vert[0] - normal[0] * 0.4, vert[1] - normal[1] * 0.4, vert[2] - normal[2] * 0.4) );
-        
+
         self.faces = [];
 
         self.faces.append( tuple([i for i in range(len(vertices))]) );
@@ -55,7 +55,6 @@ class CrossBar:
                 vert4 = get_point(phi_,  theta_ - eps, r+width)
                 return [vert1, vert2, vert3, vert4];
             else:
-                print("what?")
                 vert1 = get_point(phi_,  theta_ + eps, r-width)
                 vert2 = get_point(phi_,  theta_ - eps, r-width)
                 vert3 = get_point(phi_,  theta_ - eps, r+width)
@@ -76,6 +75,34 @@ class CrossBar:
         faces.append( (len(vertices)-1,len(vertices)-2,len(vertices)-3,len(vertices)-4 ) )
 
         return vertices, faces;
+
+    def create_obj( self, name ):
+        verts, faces = self.mesh_data();
+        obj = create_mesh( name, Vector(self.center), verts, faces )
+        #obj.game.physics_type = "RIGID_BODY"
+        bpy.context.object.select = False;
+        obj.select = True;
+        bpy.context.scene.objects.active = obj;
+        bpy.ops.rigidbody.object_add();
+        obj.rigid_body.collision_shape = "MESH"
+        return obj
+
+def hang(obj1, point1, obj2, point2):
+    '''hang obj1 on obj2'''
+    '''
+    bpy.ops.object.select_all(action='DESELECT')
+    obj1.select = True;
+    obj2.select = True;
+    bpy.ops.rigidbody.connect(con_type = "GENERIC_SPRING");
+    bpy.context.object.rigid_body_constraint.limit_lin_x_lower = 0
+    bpy.context.object.rigid_body_constraint.limit_lin_x_upper = 0
+    bpy.context.object.rigid_body_constraint.limit_lin_y_lower = 0
+    bpy.context.object.rigid_body_constraint.limit_lin_y_upper = 0
+    bpy.context.object.rigid_body_constraint.limit_lin_z_lower = 0
+    bpy.context.object.rigid_body_constraint.limit_lin_z_upper = 0
+    bpy.ops.object.select_all(action='DESELECT')
+    '''
+
 
 def create_mesh(name, origin, verts, faces):
     # Create mesh and object
@@ -102,10 +129,11 @@ def main():
     #piece = Piece(vertices, (0,0,1));
     #verts, faces = piece.mesh_data();
     #create_mesh( "test", origin, verts, faces )
-    
+
     bar = CrossBar( (0,0,0), 10, pi/4, 0.3, 0.0 )
-    verts, faces = bar.mesh_data();
-    create_mesh( "bar", origin, verts, faces )
+    bar_obj = bar.create_obj("bar");
+    cube = bpy.data.objects["Cube"];
+    hang(cube, None, bar_obj, None);
     pass;
 
 main();
