@@ -5,10 +5,11 @@ from math import cos, sin, pi
 from mathutils import Vector
 
 class Piece:
-    def __init__(self, vertices, normal):
+    def __init__(self, vertices, center, normal):
         '''Convex, vertices are in 3D.'''
         self.verts = [] + vertices;
         self.normal = normal;
+        self.center = center;
 
         for vert in vertices:
             self.verts.append( (vert[0] - normal[0] * 0.4, vert[1] - normal[1] * 0.4, vert[2] - normal[2] * 0.4) );
@@ -25,6 +26,16 @@ class Piece:
 
     def mesh_data(self):
         return self.verts, self.faces;
+    
+    def create_obj(self, name):
+        verts, faces = self.mesh_data();
+        obj = create_mesh( name, Vector(self.center), verts, faces )
+        bpy.context.object.select = False;
+        obj.select = True;
+        bpy.context.scene.objects.active = obj;
+        bpy.ops.rigidbody.object_add();
+        obj.rigid_body.collision_shape = "MESH"
+        return obj
 
 class CrossBar:
     def __init__(self, center, radius, phi, theta, alpha):
@@ -89,7 +100,6 @@ class CrossBar:
 
 def hang(obj1, point1, obj2, point2):
     '''hang obj1 on obj2'''
-    '''
     bpy.ops.object.select_all(action='DESELECT')
     obj1.select = True;
     obj2.select = True;
@@ -101,7 +111,7 @@ def hang(obj1, point1, obj2, point2):
     bpy.context.object.rigid_body_constraint.limit_lin_z_lower = 0
     bpy.context.object.rigid_body_constraint.limit_lin_z_upper = 0
     bpy.ops.object.select_all(action='DESELECT')
-    '''
+    pass;
 
 
 def create_mesh(name, origin, verts, faces):
@@ -122,6 +132,35 @@ def create_mesh(name, origin, verts, faces):
     # Update mesh with new data
     me.update()
     return ob
+
+def parse_OBJ(coords):
+    vertices = [];
+    for i in range(0,len(coords),3):
+        vertices.append( (coords[i], coords[i+1],coords[i+2]) );
+    return Piece( vertices[1:], vertices[0], (1,0,0) );
+
+def parse_BAR(coords):
+    center = (coords[0],coords[1],coords[2])
+    radius = coords[3]
+    phi    = coords[4]
+    theta  = coords[5]
+    alpha  = coords[6]
+    return CrossBar( center, radius, phi, theta, alpha );
+
+def read_file(filepath):
+    file = open(filepath, "r");
+    for line in file:
+        info = line.split(",")
+        if info[0].strip() != "TREE":
+            idx = int(info[0].strip());
+            if info[1].strip() == "BAR":
+                bar = parse_BAR(info[2:])
+                bar.create_obj(str(idx))
+            elif info[1].strip() == "OBJ":
+                obj = parse_OBJ(info[2:])
+                obj.create_obj(str(idx))
+        else: # Tree
+            pass;
 
 def main():
     origin = Vector((0,0,0))
