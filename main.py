@@ -6,6 +6,8 @@ import binary_space_partition
 import constants
 import frame
 import numpy as np
+import csv
+import operator
 
 def test():
     pos1 = Point( -10, 0 );
@@ -50,12 +52,12 @@ class TreeNode(object):
         self.right = None
 
 
-def buildTree(tree_as_list, centroid_list, mass_list, node_id_ref):
+def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, node_id_ref):
     if tree_as_list[0] == -1:#this this hanging bar
         rv = TreeNode(node_id_ref[0])
         node_id_ref[0]+=1
-        rv.left = buildTree(tree_as_list[1], centroid_list, mass_list, node_id_ref)
-        rv.right = buildTree(tree_as_list[2], centroid_list, mass_list, node_id_ref)
+        rv.left = buildTree(tree_as_list[1], centroid_list, mass_list, polygon_list, node_id_ref)
+        rv.right = buildTree(tree_as_list[2], centroid_list, mass_list, polygon_list, node_id_ref)
 
         aux_point = [(rv.left.pos[0][0]+rv.right.pos[0][0])/2.0, (rv.left.pos[0][1]+rv.right.pos[0][1])/2.0, (rv.left.pos[0][2]+rv.right.pos[0][2])/2.0 - 1.0]
         posleftright, T = frame.transfromto2D(np.matrix([rv.left.pos[0], rv.right.pos[0], aux_point]))
@@ -70,8 +72,16 @@ def buildTree(tree_as_list, centroid_list, mass_list, node_id_ref):
 
         rv.mass = rv.left.mass + rv.right.mass + constants.DENSITY * rv.radius * pi / 2.0 # Plus the mass of the bar
         cord_to_print = rv.pos
-        output_list = [rv.node_id, cord_to_print[0][0], cord_to_print[0][1], cord_to_print[0][2], rv.radius, rv.phi, rv.alpha, rv.left.node_id, rv.right.node_id]
-        print ';'.join(map(str,output_list))
+        output_list = [rv.node_id, 'BAR', cord_to_print[0][0], cord_to_print[0][1], cord_to_print[0][2], rv.radius, rv.phi, rv.alpha]
+        with open("OBJECT.csv", "a") as myfile:
+            myfile.write(', '.join(map(str,output_list)))
+            myfile.write('\r\n')
+        #print ', '.join(map(str,output_list))
+        output_tree_structure = ['TREE', rv.node_id, rv.left.node_id, rv.right.node_id]
+        with open("TREE.csv", "a") as myfile:
+            myfile.write(', '.join(map(str,output_tree_structure)))
+            myfile.write('\r\n')
+        #print ', '.join(map(str,output_tree_structure))
         return rv
     else:#leaf
         rv = TreeNode(node_id_ref[0])
@@ -80,11 +90,35 @@ def buildTree(tree_as_list, centroid_list, mass_list, node_id_ref):
         idx = centroid_list.index(tree_as_list[0])
         rv.mass = mass_list[idx]
         cord_to_print = rv.pos
-        output_list = [rv.node_id, cord_to_print[0][0], cord_to_print[0][1], cord_to_print[0][2]]
-        print ';'.join(map(str,output_list))
+        polygon_to_print = polygon_list[idx]
+        output_list = [rv.node_id, 'OBJECT']
+        for cord in polygon_to_print:
+            output_list.append(cord[0])
+            output_list.append(cord[1])
+            output_list.append(cord[2])
+        #output_list = [rv.node_id, cord_to_print[0][0], cord_to_print[0][1], cord_to_print[0][2]]
+        with open("OBJECT.csv", "a") as myfile:
+            myfile.write(', '.join(map(str,output_list)))
+            myfile.write('\r\n')
+        #print ', '.join(map(str,output_list))
+        output_tree_structure = ['TREE', rv.node_id]
+        with open("TREE.csv", "a") as myfile:
+            myfile.write(', '.join(map(str,output_tree_structure)))
+            myfile.write('\r\n')
+        #print ', '.join(map(str,output_tree_structure))
         return rv
 
+def sortCSV(filename, idx):
+    reader = csv.reader(open(filename), delimiter=",")
+    sortedlist = sorted(reader, key=lambda x: int(x[idx]))
+    with open(filename, "wb") as f:
+        writer = csv.writer(f)
+        writer.writerows(sortedlist)    
+
 def main():
+    open('OBJECT.csv', 'w').close()
+    open('TREE.csv', 'w').close()
+
     polygon_list = []
     centroid_list = []
     mass_list = []
@@ -98,14 +132,14 @@ def main():
                 polygon_raw.append(map(float, point.split(',')))
             #print polygon_raw
             Coor_2D, T = frame.transfromto2D(polygon_raw)
-            polygon_list.append(Polygon(Coor_2D))
+            polygon_list.append(polygon_raw)
             transformation_list.append(T)
             #print Coor_2D.tolist()
             polygon_shapely_2d = Polygon(Coor_2D.tolist())
             centroid2d = polygon_shapely_2d.centroid.coords
             #print list(centroid2d)
             centroid3d = frame.transfromto3D(np.matrix(list(centroid2d)), T, 1).tolist()
-            print centroid3d
+            #print centroid3d
             centroid_list.append(centroid3d)
 
 
@@ -113,8 +147,10 @@ def main():
         mass_list = map(float, f.read().split('\n'))
 
     tree = binary_space_partition.kdtree(centroid_list)
-    print tree
-    buildTree(tree, centroid_list, mass_list, [1])
+    #print tree
+    buildTree(tree, centroid_list, mass_list, polygon_list, [1])
+    sortCSV("OBJECT.csv", 0)
+    sortCSV("TREE.csv", 1)
 
 
 main();
