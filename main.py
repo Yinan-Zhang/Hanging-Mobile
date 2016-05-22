@@ -74,7 +74,7 @@ def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, node_id_ref)
         rv.mass = rv.left.mass + rv.right.mass + DENSITY * rv.radius * pi / 2.0 # Plus the mass of the bar
         cord_to_print = rv.pos
         output_list = [rv.node_id, 'BAR', cord_to_print[0][0], cord_to_print[0][1], cord_to_print[0][2], rv.radius, rv.phi, rv.alpha]
-        with open("OBJECT.csv", "a") as myfile:
+        with open("OBJ.csv", "a") as myfile:
             myfile.write(', '.join(map(str,output_list)))
             myfile.write('\r\n')
         #print ', '.join(map(str,output_list))
@@ -92,13 +92,13 @@ def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, node_id_ref)
         rv.mass = mass_list[idx]
         cord_to_print = rv.pos
         polygon_to_print = polygon_list[idx]
-        output_list = [rv.node_id, 'OBJECT']
+        output_list = [rv.node_id, 'OBJ']
         for cord in polygon_to_print:
             output_list.append(cord[0])
             output_list.append(cord[1])
             output_list.append(cord[2])
         #output_list = [rv.node_id, cord_to_print[0][0], cord_to_print[0][1], cord_to_print[0][2]]
-        with open("OBJECT.csv", "a") as myfile:
+        with open("OBJ.csv", "a") as myfile:
             myfile.write(', '.join(map(str,output_list)))
             myfile.write('\r\n')
         #print ', '.join(map(str,output_list))
@@ -114,10 +114,16 @@ def sortCSV(filename, idx):
     sortedlist = sorted(reader, key=lambda x: int(x[idx]))
     with open(filename, "wb") as f:
         writer = csv.writer(f)
-        writer.writerows(sortedlist)    
+        writer.writerows(sortedlist)
+
+def combineFile(filelist, filename):
+    with open(filename, 'w') as outfile:
+        for fname in filelist:
+            with open(fname) as infile:
+                outfile.write(infile.read())    
 
 def main():
-    open('OBJECT.csv', 'w').close()
+    open('OBJ.csv', 'w').close()
     open('TREE.csv', 'w').close()
 
     polygon_list = []
@@ -152,8 +158,9 @@ def main():
     tree = binary_space_partition.kdtree(centroid_list)
     #print tree
     buildTree(tree, centroid_list, mass_list, polygon_list, [1])
-    sortCSV("OBJECT.csv", 0)
+    sortCSV("OBJ.csv", 0)
     sortCSV("TREE.csv", 1)
+    combineFile(["OBJ.csv","TREE.csv"], "OBJECT.csv")
 
 
 main();
