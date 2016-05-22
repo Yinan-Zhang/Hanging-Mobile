@@ -64,9 +64,9 @@ def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, node_id_ref)
         p2 = rv.right.pos[0]
         aux_point = [(rv.left.pos[0][0]+rv.right.pos[0][0])/2.0, (rv.left.pos[0][1]+rv.right.pos[0][1])/2.0, (rv.left.pos[0][2]+rv.right.pos[0][2])/2.0 - 1.0]
         
-        p1[2] = p1[2] + constants.STRING_LEN
-        p2[2] = p2[2] + constants.STRING_LEN
-        aux_point[2] = aux_point[2] + constants.STRING_LEN
+        p1[2] = p1[2]# + constants.STRING_LEN
+        p2[2] = p2[2]# + constants.STRING_LEN
+        aux_point[2] = aux_point[2] #+ constants.STRING_LEN
         
         # in order to transform we at least need three points
         #posleftright, T = frame.transfromto2D(np.matrix([p1, p2, aux_point]))
@@ -83,7 +83,7 @@ def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, node_id_ref)
         rv.radius = radius
         rv.alpha = alpha
         #rv.pos = frame.transfromto3D(np.matrix(list(pos.coords)), T, 1).tolist()
-        rv.pos = [frame.local2global([p1, p2], list(pos.coords)[0] ,posleftright)]
+        rv.pos = [frame.local2global([p1, p2], [list(pos.coords)[0][0], list(pos.coords)[0][1]+ constants.STRING_LEN], posleftright)]
         rv.phi = phi
 
         DENSITY = constants.DESITY_CM3 * constants.BAR_WIDTH * constants.BAR_HEIGHT #desity per cm
