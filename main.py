@@ -69,9 +69,10 @@ def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, node_id_ref)
         aux_point[2] = aux_point[2] + constants.STRING_LEN
         
         # in order to transform we at least need three points
-        posleftright, T = frame.transfromto2D(np.matrix([p1, p2, aux_point]))
+        #posleftright, T = frame.transfromto2D(np.matrix([p1, p2, aux_point]))
+        posleftright = frame.global2local([p1, p2])
 
-        center, radius, phi, alpha, pos = find_balance_point(rv.left.mass, rv.right.mass, Point(posleftright[0].tolist()[0]), Point(posleftright[1].tolist()[0]));
+        center, radius, phi, alpha, pos = find_balance_point(rv.left.mass, rv.right.mass, Point(posleftright[0]), Point(posleftright[1]));
 
         # Computer theta
         x_proj = rv.right.pos[0][0]
@@ -81,7 +82,8 @@ def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, node_id_ref)
         rv.center = center
         rv.radius = radius
         rv.alpha = alpha
-        rv.pos = frame.transfromto3D(np.matrix(list(pos.coords)), T, 1).tolist()
+        #rv.pos = frame.transfromto3D(np.matrix(list(pos.coords)), T, 1).tolist()
+        rv.pos = [frame.local2global([p1, p2], list(pos.coords)[0] ,posleftright)]
         rv.phi = phi
 
         DENSITY = constants.DESITY_CM3 * constants.BAR_WIDTH * constants.BAR_HEIGHT #desity per cm
