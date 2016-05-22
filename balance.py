@@ -85,3 +85,8 @@ def find_quarter_circle(point1, point2):
     center = vec_plus(mid_point, vec_times(normal, segment.length()/2.0));
     radius = segment.length() / sqrt(2);
     return center, radius;
+
+#center, radius, phi, alpha, balance_point = find_balance_point(1, 2, Point(1, 1), Point(0, 0))
+#print center
+#print radius
+#print balance_point
