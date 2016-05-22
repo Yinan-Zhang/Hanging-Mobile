@@ -78,7 +78,7 @@ def find_quarter_circle(point1, point2):
         high = point1; low = point2;
     else:
         high = point2; low = point1;
-
+ 
     segment = Segment(low, high);
     mid_point = Point( (point1.x+point2.x)/2.0, (point1.y+point2.y)/2.0 );
     normal = segment.normal();
@@ -86,7 +86,10 @@ def find_quarter_circle(point1, point2):
     radius = segment.length() / sqrt(2);
     return center, radius;
 
-#center, radius, phi, alpha, balance_point = find_balance_point(1, 2, Point(1, 1), Point(0, 0))
+#center,r = find_quarter_circle(Point(0,0), Point(2,3 ))
+#print center
+#print r
+#center, radius, phi, alpha, balance_point = find_balance_point(1, 2, Point(0.5, 0.5), Point(3.5, 1))
 #print center
 #print radius
 #print balance_point

@@ -83,13 +83,16 @@ def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, node_id_ref)
         rv.radius = radius
         rv.alpha = alpha
         #rv.pos = frame.transfromto3D(np.matrix(list(pos.coords)), T, 1).tolist()
-        rv.pos = [frame.local2global([p1, p2], [list(pos.coords)[0][0], list(pos.coords)[0][1]+ constants.STRING_LEN], posleftright)]
+        rv.pos = [frame.local2global([p1, p2], [list(pos.coords)[0][0], list(pos.coords)[0][1]], posleftright)]
         rv.phi = phi
 
         DENSITY = constants.DESITY_CM3 * constants.BAR_WIDTH * constants.BAR_HEIGHT #desity per cm
         rv.mass = rv.left.mass + rv.right.mass + DENSITY * rv.radius * pi / 2.0 # Plus the mass of the bar
-        cord_to_print = rv.pos
-        output_list = [rv.node_id, 'BAR', cord_to_print[0][0], cord_to_print[0][1], cord_to_print[0][2], rv.radius, rv.phi, theta, rv.alpha]
+        
+        center3d = frame.local2global([p1, p2], [list(center.coords)[0][0], list(center.coords)[0][1]], posleftright)
+        cord_to_print = center3d
+        
+        output_list = [rv.node_id, 'BAR', cord_to_print[0], cord_to_print[1], cord_to_print[2], rv.radius, rv.phi, theta, rv.alpha]
         with open("OBJ.csv", "a") as myfile:
             myfile.write(', '.join(map(str,output_list)))
             myfile.write('\r\n')
@@ -177,7 +180,7 @@ def main():
     #    mass_list = map(float, f.read().split('\n'))
 
     tree = binary_space_partition.kdtree(centroid_list)
-    print tree
+    #print tree
     buildTree(tree, centroid_list, mass_list, polygon_list, [1])
     sortCSV("OBJ.csv", 0)
     sortCSV("TREE.csv", 1)
