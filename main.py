@@ -60,8 +60,16 @@ def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, node_id_ref)
         rv.left = buildTree(tree_as_list[1], centroid_list, mass_list, polygon_list, node_id_ref)
         rv.right = buildTree(tree_as_list[2], centroid_list, mass_list, polygon_list, node_id_ref)
 
+        p1 = rv.left.pos[0]
+        p2 = rv.right.pos[0]
         aux_point = [(rv.left.pos[0][0]+rv.right.pos[0][0])/2.0, (rv.left.pos[0][1]+rv.right.pos[0][1])/2.0, (rv.left.pos[0][2]+rv.right.pos[0][2])/2.0 - 1.0]
-        posleftright, T = frame.transfromto2D(np.matrix([rv.left.pos[0], rv.right.pos[0], aux_point]))
+        
+        #p1[2] = p1[2] + constants.STRING_LEN
+        #p2[2] = p2[2] + constants.STRING_LEN
+        #aux_point[2] = aux_point[2] + constants.STRING_LEN
+        
+        # in order to transform we at least need three points
+        posleftright, T = frame.transfromto2D(np.matrix([p1, p2, aux_point]))
 
         center, radius, phi, alpha, pos = find_balance_point(rv.left.mass, rv.right.mass, Point(posleftright[0].tolist()[0]), Point(posleftright[1].tolist()[0]));
 
@@ -99,6 +107,11 @@ def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, node_id_ref)
         cord_to_print = rv.pos
         polygon_to_print = polygon_list[idx]
         output_list = [rv.node_id, 'OBJ']
+        
+        output_list.append(rv.pos[0][0])
+        output_list.append(rv.pos[0][1])
+        output_list.append(rv.pos[0][2])
+
         for cord in polygon_to_print:
             output_list.append(cord[0])
             output_list.append(cord[1])
