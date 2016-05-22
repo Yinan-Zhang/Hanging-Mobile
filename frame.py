@@ -15,14 +15,23 @@ def global2local(p3dpair):
 
 # p2d defined as [x, y]
 def local2global(p3dpair, p2d, p2pair):
-	ratio = p2d[0]/p2pair[1][0]
+	#ratio = p2d[0]/p2pair[1][0]
+	#p = []
+	#delta_x = p3dpair[1][0]-p3dpair[0][0] # x2-x1
+	#delta_y = p3dpair[1][1]-p3dpair[0][1] # y2-y1
+	#delta_z = p3dpair[1][2]-p3dpair[0][2] # z2-z1
+	#p.append(p3dpair[0][0] + ratio*delta_x)
+	#p.append(p3dpair[0][1] + ratio*delta_y)
+	#p.append(p3dpair[0][2] + ratio*delta_z)
+
 	p = []
+	ratio = p2d[0]/p2pair[1][0]
 	delta_x = p3dpair[1][0]-p3dpair[0][0] # x2-x1
 	delta_y = p3dpair[1][1]-p3dpair[0][1] # y2-y1
-	delta_z = p3dpair[1][2]-p3dpair[0][2] # z2-z1
 	p.append(p3dpair[0][0] + ratio*delta_x)
 	p.append(p3dpair[0][1] + ratio*delta_y)
-	p.append(p3dpair[0][2] + ratio*delta_z)
+	p.append(p3dpair[0][2] + p2d[1])
+	
 	return p
 
 def test_frame_funcs():
