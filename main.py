@@ -64,9 +64,9 @@ def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, node_id_ref)
         p2 = rv.right.pos[0]
         aux_point = [(rv.left.pos[0][0]+rv.right.pos[0][0])/2.0, (rv.left.pos[0][1]+rv.right.pos[0][1])/2.0, (rv.left.pos[0][2]+rv.right.pos[0][2])/2.0 - 1.0]
         
-        #p1[2] = p1[2] + constants.STRING_LEN
-        #p2[2] = p2[2] + constants.STRING_LEN
-        #aux_point[2] = aux_point[2] + constants.STRING_LEN
+        p1[2] = p1[2] + constants.STRING_LEN
+        p2[2] = p2[2] + constants.STRING_LEN
+        aux_point[2] = aux_point[2] + constants.STRING_LEN
         
         # in order to transform we at least need three points
         posleftright, T = frame.transfromto2D(np.matrix([p1, p2, aux_point]))
