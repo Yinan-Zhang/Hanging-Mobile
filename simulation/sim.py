@@ -5,14 +5,20 @@ from math import cos, sin, pi
 from mathutils import Vector
 
 class Piece:
-    def __init__(self, vertices, center, normal):
+    def __init__(self, vertices, center, normal, thickness = 0.15):
         '''Convex, vertices are in 3D.'''
-        self.verts = [] + vertices;
+        self.verts = [];
         self.normal = normal;
         self.center = center;
 
+        vertices_new = []
         for vert in vertices:
-            self.verts.append( (vert[0] - normal[0] * 0.4, vert[1] - normal[1] * 0.4, vert[2] - normal[2] * 0.4) );
+            vertices_new.append( (vert[0]-self.center[0],vert[1]-self.center[1],vert[2]-self.center[2]) )
+
+        for vert in vertices_new:
+            self.verts.append( (vert[0] + normal[0] * thickness, vert[1] + normal[1] * thickness, vert[2] + normal[2] * thickness) );
+        for vert in vertices_new:
+            self.verts.append( (vert[0] - normal[0] * thickness, vert[1] - normal[1] * thickness, vert[2] - normal[2] * thickness) );
 
         self.faces = [];
 
@@ -36,6 +42,12 @@ class Piece:
         bpy.ops.rigidbody.object_add();
         obj.rigid_body.collision_shape = "MESH"
         return obj
+    @staticmethod
+    def create_dummy_obj( location, name):
+        vertices = [(0,0,0), (0.01,0,0),(0.01,0.01,0),(0,0.01,0)];
+        piece = Piece(vertices, location, (1,0,0), 0.01);
+        obj = piece.create_obj(name);
+        return obj
 
 class CrossBar:
     def __init__(self, center, radius, phi, theta, alpha):
@@ -48,6 +60,18 @@ class CrossBar:
         self.phi    = phi;
         self.theta  = theta;
         self.alpah  = alpha;
+        self.object = None;
+       
+
+    def left_end(self):
+        r = self.radius;
+        local = (r * cos(self.phi+pi/2.0) * cos(self.theta), r * cos(self.phi+pi/2.0) * sin(self.theta), r * sin(self.phi+pi/2.0))
+        return (self.center[0]+local[0], self.center[1]+local[1], self.center[2]+local[2])
+    
+    def right_end(self):
+        r = self.radius;
+        local = (r * cos(self.phi) * cos(self.theta), r * cos(self.phi) * sin(self.theta), r * sin(self.phi))
+        return (self.center[0]+local[0], self.center[1]+local[1], self.center[2]+local[2])
 
     def mesh_data(self):
         '''Get mesh data including vertices and faces'''
@@ -90,26 +114,41 @@ class CrossBar:
     def create_obj( self, name ):
         verts, faces = self.mesh_data();
         obj = create_mesh( name, Vector(self.center), verts, faces )
+        self.object = obj;
         #obj.game.physics_type = "RIGID_BODY"
         bpy.context.object.select = False;
         obj.select = True;
         bpy.context.scene.objects.active = obj;
         bpy.ops.rigidbody.object_add();
         obj.rigid_body.collision_shape = "MESH"
+        #bpy.ops.object.origin_set(type="GEOMETRY_ORIGIN");
+        bpy.ops.object.select_all(action='DESELECT')
         return obj
 
-def hang(obj1, point1, obj2, point2):
-    '''hang obj1 on obj2'''
+def hang(obj, bar, option):
+    '''hang obj1 on bar (left or right)'''
+    bar_pos = None;
+    if option == "left":
+        bar_pos = bar.left_end();
+    elif option == "right":
+        bar_pos = bar.right_end();
+    
     bpy.ops.object.select_all(action='DESELECT')
-    obj1.select = True;
-    obj2.select = True;
-    bpy.ops.rigidbody.connect(con_type = "GENERIC_SPRING");
-    bpy.context.object.rigid_body_constraint.limit_lin_x_lower = 0
-    bpy.context.object.rigid_body_constraint.limit_lin_x_upper = 0
-    bpy.context.object.rigid_body_constraint.limit_lin_y_lower = 0
-    bpy.context.object.rigid_body_constraint.limit_lin_y_upper = 0
-    bpy.context.object.rigid_body_constraint.limit_lin_z_lower = 0
-    bpy.context.object.rigid_body_constraint.limit_lin_z_upper = 0
+    # Create a dummy object with fixed constraint with obj 2
+    dummy = Piece.create_dummy_obj( bar_pos, bar.object.name + "_dummy" + ("_l" if option== "left" else '_r') );
+    dummy.select = True;
+    bar.object.select = True;
+    bpy.ops.rigidbody.connect(con_type = "FIXED");
+    bpy.ops.object.select_all(action='DESELECT')
+    
+    # Hang obj1 to the dummy object with rigid body constraint.
+    dummy.select = True;
+    bpy.context.scene.objects.active = dummy;
+    bpy.ops.rigidbody.constraint_add(type = "POINT");
+    dummy.rigid_body_constraint.object1 = dummy;
+    dummy.rigid_body_constraint.object2 = obj;
+    
+    # De-select all.
     bpy.ops.object.select_all(action='DESELECT')
     pass;
 
@@ -136,15 +175,15 @@ def create_mesh(name, origin, verts, faces):
 def parse_OBJ(coords):
     vertices = [];
     for i in range(0,len(coords),3):
-        vertices.append( (coords[i], coords[i+1],coords[i+2]) );
+        vertices.append( (float(coords[i]), float(coords[i+1]), float(coords[i+2])) );
     return Piece( vertices[1:], vertices[0], (1,0,0) );
 
 def parse_BAR(coords):
-    center = (coords[0],coords[1],coords[2])
-    radius = coords[3]
-    phi    = coords[4]
-    theta  = coords[5]
-    alpha  = coords[6]
+    center = (float(coords[0]),float(coords[1]),float(coords[2]))
+    radius = float(coords[3])
+    phi    = float(coords[4])
+    theta  = float(coords[5])
+    alpha  = float(coords[6])
     return CrossBar( center, radius, phi, theta, alpha );
 
 def read_file(filepath):
@@ -162,17 +201,25 @@ def read_file(filepath):
         else: # Tree
             pass;
 
+def delete_all():
+    bpy.ops.object.select_all(action='SELECT')
+    bpy.ops.object.delete();
+
 def main():
     origin = Vector((0,0,0))
-    #vertices = [(0,0,0), (10,0,0), (10,10,0), (0,10,0)]
-    #piece = Piece(vertices, (0,0,1));
-    #verts, faces = piece.mesh_data();
-    #create_mesh( "test", origin, verts, faces )
+    #vertices = [(0,0,0), (1,0,0), (1,1,0), (0,1,0)]
+    #piece = Piece(vertices, (0,1,0), (0,0,1));
+    #piece.create_obj("test")
 
-    bar = CrossBar( (0,0,0), 10, pi/4, 0.3, 0.0 )
+    bar = CrossBar( (0,0,3), 3, pi/4, 0.3, 0.0 )
     bar_obj = bar.create_obj("bar");
-    cube = bpy.data.objects["Cube"];
-    hang(cube, None, bar_obj, None);
-    pass;
+    cube2 = bpy.data.objects["2"];
+    hang(cube2, bar, "right")
+    cube3 = bpy.data.objects["3"];
+    hang(cube3, bar, "left")
+    #pass;
+    
+    #delete_all()
+    #read_file("../OBJECT.csv")
 
 main();
