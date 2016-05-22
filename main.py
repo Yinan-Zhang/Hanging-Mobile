@@ -8,6 +8,7 @@ import frame
 import numpy as np
 import csv
 import operator
+from math import sqrt, acos, cos, sin, pi, fabs, sin
 
 def test():
     pos1 = Point( -10, 0 );
@@ -64,6 +65,11 @@ def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, node_id_ref)
 
         center, radius, phi, alpha, pos = find_balance_point(rv.left.mass, rv.right.mass, Point(posleftright[0].tolist()[0]), Point(posleftright[1].tolist()[0]));
 
+        # Computer theta
+        x_proj = rv.right.pos[0][0]
+        y_proj = rv.right.pos[0][1]
+        theta = acos(x_proj/sqrt(x_proj**2 + y_proj**2))
+
         rv.center = center
         rv.radius = radius
         rv.alpha = alpha
@@ -73,7 +79,7 @@ def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, node_id_ref)
         DENSITY = constants.DESITY_CM3 * constants.BAR_WIDTH * constants.BAR_HEIGHT #desity per cm
         rv.mass = rv.left.mass + rv.right.mass + DENSITY * rv.radius * pi / 2.0 # Plus the mass of the bar
         cord_to_print = rv.pos
-        output_list = [rv.node_id, 'BAR', cord_to_print[0][0], cord_to_print[0][1], cord_to_print[0][2], rv.radius, rv.phi, rv.alpha]
+        output_list = [rv.node_id, 'BAR', cord_to_print[0][0], cord_to_print[0][1], cord_to_print[0][2], rv.radius, rv.phi, theta, rv.alpha]
         with open("OBJ.csv", "a") as myfile:
             myfile.write(', '.join(map(str,output_list)))
             myfile.write('\r\n')
