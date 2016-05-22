@@ -102,10 +102,10 @@ def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, node_id_ref)
             myfile.write(', '.join(map(str,output_list)))
             myfile.write('\r\n')
         #print ', '.join(map(str,output_list))
-        output_tree_structure = ['TREE', rv.node_id]
-        with open("TREE.csv", "a") as myfile:
-            myfile.write(', '.join(map(str,output_tree_structure)))
-            myfile.write('\r\n')
+        #output_tree_structure = ['TREE', rv.node_id]
+        #with open("TREE.csv", "a") as myfile:
+        #    myfile.write(', '.join(map(str,output_tree_structure)))
+        #    myfile.write('\r\n')
         #print ', '.join(map(str,output_tree_structure))
         return rv
 
