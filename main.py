@@ -70,7 +70,8 @@ def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, node_id_ref)
         rv.pos = frame.transfromto3D(np.matrix(list(pos.coords)), T, 1).tolist()
         rv.phi = phi
 
-        rv.mass = rv.left.mass + rv.right.mass + constants.DENSITY * rv.radius * pi / 2.0 # Plus the mass of the bar
+        DENSITY = constants.DESITY_CM3 * constants.BAR_WIDTH * constants.BAR_HEIGHT #desity per cm
+        rv.mass = rv.left.mass + rv.right.mass + DENSITY * rv.radius * pi / 2.0 # Plus the mass of the bar
         cord_to_print = rv.pos
         output_list = [rv.node_id, 'BAR', cord_to_print[0][0], cord_to_print[0][1], cord_to_print[0][2], rv.radius, rv.phi, rv.alpha]
         with open("OBJECT.csv", "a") as myfile:
@@ -136,6 +137,8 @@ def main():
             transformation_list.append(T)
             #print Coor_2D.tolist()
             polygon_shapely_2d = Polygon(Coor_2D.tolist())
+            DESITY_CM2 = constants.DESITY_CM3 * constants.BAR_HEIGHT
+            mass_list.append(polygon_shapely_2d.area * DESITY_CM2)
             centroid2d = polygon_shapely_2d.centroid.coords
             #print list(centroid2d)
             centroid3d = frame.transfromto3D(np.matrix(list(centroid2d)), T, 1).tolist()
@@ -143,8 +146,8 @@ def main():
             centroid_list.append(centroid3d)
 
 
-    with open('mass_list.txt') as f:
-        mass_list = map(float, f.read().split('\n'))
+    #with open('mass_list.txt') as f:
+    #    mass_list = map(float, f.read().split('\n'))
 
     tree = binary_space_partition.kdtree(centroid_list)
     #print tree
