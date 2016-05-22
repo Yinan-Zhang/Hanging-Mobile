@@ -162,7 +162,7 @@ def main():
     #    mass_list = map(float, f.read().split('\n'))
 
     tree = binary_space_partition.kdtree(centroid_list)
-    #print tree
+    print tree
     buildTree(tree, centroid_list, mass_list, polygon_list, [1])
     sortCSV("OBJ.csv", 0)
     sortCSV("TREE.csv", 1)
