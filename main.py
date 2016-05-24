@@ -157,6 +157,8 @@ def main():
     centroid_list = []
     mass_list = []
     transformation_list = []
+    
+    '''
     with open('input.txt') as f:
         for line in f:
             if line[0] == '#':
@@ -177,8 +179,28 @@ def main():
             centroid3d = frame.transfromto3D(np.matrix(list(centroid2d)), T, 1).tolist()
             #print centroid3d
             centroid_list.append(centroid3d)
+    '''
+    
+    with open('out3.obj') as f:
+        polygon_raw = []
+        for line in f:
+            if line[0] == 'f':
+                Coor_2D, T = frame.transfromto2D(polygon_raw)
+                polygon_list.append(polygon_raw)
+                transformation_list.append(T)
+                #print Coor_2D.tolist()
+                polygon_shapely_2d = Polygon(Coor_2D.tolist())
+                DESITY_CM2 = constants.DESITY_CM3 * constants.BAR_HEIGHT
+                mass_list.append(polygon_shapely_2d.area * DESITY_CM2)
+                centroid2d = polygon_shapely_2d.centroid.coords
+                #print list(centroid2d)
+                centroid3d = frame.transfromto3D(np.matrix(list(centroid2d)), T, 1).tolist()
+                #print centroid3d
+                centroid_list.append(centroid3d)
 
-
+                polygon_raw = []
+            else:       
+                polygon_raw.append(map(float, line[2:].split(' ')))
     #with open('mass_list.txt') as f:
     #    mass_list = map(float, f.read().split('\n'))
 
