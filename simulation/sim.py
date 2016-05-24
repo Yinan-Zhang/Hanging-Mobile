@@ -5,11 +5,13 @@ from math import cos, sin, pi
 from mathutils import Vector
 
 class Piece:
-    def __init__(self, vertices, center, normal, thickness = 0.15):
+    def __init__(self, vertices, center, normal, thickness = 0.15, mass = 1.0):
         '''Convex, vertices are in 3D.'''
         self.verts = [];
         self.normal = normal;
         self.center = center;
+        self.mass   = mass;
+        self.object = None;
 
         vertices_new = []
         for vert in vertices:
@@ -32,8 +34,9 @@ class Piece:
 
     def mesh_data(self):
         return self.verts, self.faces;
-    
+
     def create_obj(self, name):
+        bpy.ops.object.select_all(action='DESELECT')
         verts, faces = self.mesh_data();
         obj = create_mesh( name, Vector(self.center), verts, faces )
         bpy.context.object.select = False;
@@ -41,6 +44,10 @@ class Piece:
         bpy.context.scene.objects.active = obj;
         bpy.ops.rigidbody.object_add();
         obj.rigid_body.collision_shape = "MESH"
+        obj.rigid_body.mass = self.mass;
+        self.object = obj;
+        bpy.ops.object.origin_set(type="ORIGIN_CENTER_OF_MASS");
+        bpy.ops.object.select_all(action='DESELECT')
         return obj
     @staticmethod
     def create_dummy_obj( location, name):
@@ -50,7 +57,7 @@ class Piece:
         return obj
 
 class CrossBar:
-    def __init__(self, center, radius, phi, theta, alpha):
+    def __init__(self, center, radius, phi, theta, alpha, mass = 1.0):
         '''
         @ center is the center of the quarter-circle
         radius, phi, theta together define the right end of the bar.
@@ -59,15 +66,21 @@ class CrossBar:
         self.radius = radius;
         self.phi    = phi;
         self.theta  = theta;
-        self.alpah  = alpha;
+        self.alpha  = alpha;
         self.object = None;
-       
+        self.mass   = mass;
+
+    def balance_point(self):
+        r = self.radius;
+        local = (r * cos(self.phi+self.alpha) * cos(self.theta), r * cos(self.phi+self.alpha) * sin(self.theta), r * sin(self.phi+self.alpha))
+        print( (self.center[0]+local[0], self.center[1]+local[1], self.center[2]+local[2]) )
+        return (self.center[0]+local[0], self.center[1]+local[1], self.center[2]+local[2])
 
     def left_end(self):
         r = self.radius;
         local = (r * cos(self.phi+pi/2.0) * cos(self.theta), r * cos(self.phi+pi/2.0) * sin(self.theta), r * sin(self.phi+pi/2.0))
         return (self.center[0]+local[0], self.center[1]+local[1], self.center[2]+local[2])
-    
+
     def right_end(self):
         r = self.radius;
         local = (r * cos(self.phi) * cos(self.theta), r * cos(self.phi) * sin(self.theta), r * sin(self.phi))
@@ -112,6 +125,7 @@ class CrossBar:
         return vertices, faces;
 
     def create_obj( self, name ):
+        bpy.ops.object.select_all(action='DESELECT')
         verts, faces = self.mesh_data();
         obj = create_mesh( name, Vector(self.center), verts, faces )
         self.object = obj;
@@ -121,9 +135,13 @@ class CrossBar:
         bpy.context.scene.objects.active = obj;
         bpy.ops.rigidbody.object_add();
         obj.rigid_body.collision_shape = "MESH"
-        #bpy.ops.object.origin_set(type="GEOMETRY_ORIGIN");
+        obj.rigid_body.mass = self.mass;
+        bpy.context.scene.cursor_location = self.balance_point();
+        bpy.ops.object.origin_set(type="ORIGIN_CURSOR");
+
         bpy.ops.object.select_all(action='DESELECT')
         return obj
+
 
 def hang(obj, bar, option):
     '''hang obj1 on bar (left or right)'''
@@ -132,22 +150,32 @@ def hang(obj, bar, option):
         bar_pos = bar.left_end();
     elif option == "right":
         bar_pos = bar.right_end();
-    
+
     bpy.ops.object.select_all(action='DESELECT')
-    # Create a dummy object with fixed constraint with obj 2
+    # Create a dummy object with fixed constraint with bar
     dummy = Piece.create_dummy_obj( bar_pos, bar.object.name + "_dummy" + ("_l" if option== "left" else '_r') );
     dummy.select = True;
     bar.object.select = True;
     bpy.ops.rigidbody.connect(con_type = "FIXED");
     bpy.ops.object.select_all(action='DESELECT')
-    
+
     # Hang obj1 to the dummy object with rigid body constraint.
     dummy.select = True;
     bpy.context.scene.objects.active = dummy;
-    bpy.ops.rigidbody.constraint_add(type = "POINT");
+    bpy.ops.rigidbody.constraint_add(type = "GENERIC_SPRING");
     dummy.rigid_body_constraint.object1 = dummy;
     dummy.rigid_body_constraint.object2 = obj;
-    
+    dummy.rigid_body_constraint.use_limit_lin_x = True
+    dummy.rigid_body_constraint.use_limit_lin_y = True
+    dummy.rigid_body_constraint.use_limit_lin_z = True
+    dummy.rigid_body_constraint.limit_lin_x_lower = 0
+    dummy.rigid_body_constraint.limit_lin_x_upper = 0
+    dummy.rigid_body_constraint.limit_lin_y_lower = 0
+    dummy.rigid_body_constraint.limit_lin_y_upper = 0
+    dummy.rigid_body_constraint.limit_lin_z_lower = 0
+    dummy.rigid_body_constraint.limit_lin_z_upper = 0
+
+
     # De-select all.
     bpy.ops.object.select_all(action='DESELECT')
     pass;
@@ -188,38 +216,32 @@ def parse_BAR(coords):
 
 def read_file(filepath):
     file = open(filepath, "r");
+    class_objects = {};
     for line in file:
         info = line.split(",")
         if info[0].strip() != "TREE":
             idx = int(info[0].strip());
             if info[1].strip() == "BAR":
                 bar = parse_BAR(info[2:])
+                class_objects[idx] = bar;
                 bar.create_obj(str(idx))
             elif info[1].strip() == "OBJ":
                 obj = parse_OBJ(info[2:])
+                class_objects[idx] = obj;
                 obj.create_obj(str(idx))
         else: # Tree
-            pass;
+            parent = int(info[1].strip());
+            left   = int(info[2].strip());
+            right  = int(info[3].strip());
+            hang(class_objects[left].object, class_objects[parent], "left");
+            hang(class_objects[right].object, class_objects[parent], "right");
 
 def delete_all():
     bpy.ops.object.select_all(action='SELECT')
     bpy.ops.object.delete();
 
 def main():
-    origin = Vector((0,0,0))
-    #vertices = [(0,0,0), (1,0,0), (1,1,0), (0,1,0)]
-    #piece = Piece(vertices, (0,1,0), (0,0,1));
-    #piece.create_obj("test")
-
-    bar = CrossBar( (0,0,3), 3, pi/4, 0.3, 0.0 )
-    bar_obj = bar.create_obj("bar");
-    cube2 = bpy.data.objects["2"];
-    hang(cube2, bar, "right")
-    cube3 = bpy.data.objects["3"];
-    hang(cube3, bar, "left")
-    #pass;
-    
-    #delete_all()
-    #read_file("../OBJECT.csv")
+    delete_all()
+    read_file("../OBJECT.csv")
 
 main();
