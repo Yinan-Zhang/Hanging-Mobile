@@ -8,6 +8,7 @@ import frame
 import numpy as np
 import csv
 import operator
+import generate
 from math import sqrt, acos, cos, sin, pi, fabs, sin
 
 def test():
@@ -53,12 +54,12 @@ class TreeNode(object):
         self.right = None
 
 
-def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, node_id_ref):
+def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, polygon_2d_list, node_id_ref):
     if tree_as_list[0] == -1:#this this hanging bar
         rv = TreeNode(node_id_ref[0])
         node_id_ref[0]+=1
-        rv.left = buildTree(tree_as_list[1], centroid_list, mass_list, polygon_list, node_id_ref)
-        rv.right = buildTree(tree_as_list[2], centroid_list, mass_list, polygon_list, node_id_ref)
+        rv.left = buildTree(tree_as_list[1], centroid_list, mass_list, polygon_list, polygon_2d_list, node_id_ref)
+        rv.right = buildTree(tree_as_list[2], centroid_list, mass_list, polygon_list, polygon_2d_list, node_id_ref)
 
         p1 = rv.left.pos[0]
         p2 = rv.right.pos[0]
@@ -108,6 +109,9 @@ def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, node_id_ref)
         node_id_ref[0]+=1
         rv.pos = tree_as_list[0]
         idx = centroid_list.index(tree_as_list[0])
+
+        generate.generatePNG(polygon_2d_list[idx], 'O'+str(idx))
+        
         rv.mass = mass_list[idx]
         cord_to_print = rv.pos
         polygon_to_print = polygon_list[idx]
@@ -154,6 +158,7 @@ def main():
     open('TREE.csv', 'w').close()
 
     polygon_list = []
+    polygon_2d_list = []
     centroid_list = []
     mass_list = []
     transformation_list = []
@@ -190,6 +195,7 @@ def main():
                 transformation_list.append(T)
                 #print Coor_2D.tolist()
                 polygon_shapely_2d = Polygon(Coor_2D.tolist())
+                polygon_2d_list.append(polygon_shapely_2d)
                 DESITY_CM2 = constants.DESITY_CM3 * constants.BAR_HEIGHT
                 mass_list.append(polygon_shapely_2d.area * DESITY_CM2)
                 centroid2d = polygon_shapely_2d.centroid.coords
@@ -197,16 +203,17 @@ def main():
                 centroid3d = frame.transfromto3D(np.matrix(list(centroid2d)), T, 1).tolist()
                 #print centroid3d
                 centroid_list.append(centroid3d)
-
                 polygon_raw = []
             else:       
-                polygon_raw.append(map(float, line[2:].split(' ')))
+                temp_array = map(float, line[2:].split(' '))
+                real_array = [temp_array[2], temp_array[0], temp_array[1]]
+                polygon_raw.append(real_array)
     #with open('mass_list.txt') as f:
     #    mass_list = map(float, f.read().split('\n'))
 
     tree = binary_space_partition.kdtree(centroid_list)
     #print tree
-    buildTree(tree, centroid_list, mass_list, polygon_list, [1])
+    buildTree(tree, centroid_list, mass_list, polygon_list, polygon_2d_list, [1])
     sortCSV("OBJ.csv", 0)
     sortCSV("TREE.csv", 1)
     combineFile(["OBJ.csv","TREE.csv"], "OBJECT.csv")
