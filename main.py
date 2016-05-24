@@ -92,7 +92,7 @@ def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, node_id_ref)
         center3d = frame.local2global([p1, p2], [list(center.coords)[0][0], list(center.coords)[0][1]], posleftright)
         cord_to_print = center3d
         
-        output_list = [rv.node_id, 'BAR', cord_to_print[0], cord_to_print[1], cord_to_print[2], rv.radius, rv.phi, theta, rv.alpha]
+        output_list = [rv.node_id, 'BAR', cord_to_print[0], cord_to_print[1], cord_to_print[2], rv.radius, rv.phi, theta, rv.alpha, rv.mass]
         with open("OBJ.csv", "a") as myfile:
             myfile.write(', '.join(map(str,output_list)))
             myfile.write('\r\n')
@@ -121,6 +121,9 @@ def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, node_id_ref)
             output_list.append(cord[0])
             output_list.append(cord[1])
             output_list.append(cord[2])
+
+        output_list.append(rv.mass)
+
         #output_list = [rv.node_id, cord_to_print[0][0], cord_to_print[0][1], cord_to_print[0][2]]
         with open("OBJ.csv", "a") as myfile:
             myfile.write(', '.join(map(str,output_list)))
