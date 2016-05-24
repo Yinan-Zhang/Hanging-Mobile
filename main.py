@@ -188,25 +188,32 @@ def main():
     
     with open('out3.obj') as f:
         polygon_raw = []
+        polygon_2d_raw = []
         for line in f:
             if line[0] == 'f':
-                Coor_2D, T = frame.transfromto2D(polygon_raw)
+                #Coor_2D, T = frame.transfromto2D(polygon_raw)
                 polygon_list.append(polygon_raw)
-                transformation_list.append(T)
+                #transformation_list.append(T)
                 #print Coor_2D.tolist()
-                polygon_shapely_2d = Polygon(Coor_2D.tolist())
+                polygon_shapely_2d = Polygon(polygon_2d_raw)
                 polygon_2d_list.append(polygon_shapely_2d)
+
                 DESITY_CM2 = constants.DESITY_CM3 * constants.BAR_HEIGHT
                 mass_list.append(polygon_shapely_2d.area * DESITY_CM2)
+                
                 centroid2d = polygon_shapely_2d.centroid.coords
                 #print list(centroid2d)
-                centroid3d = frame.transfromto3D(np.matrix(list(centroid2d)), T, 1).tolist()
+                centroid3d = [[polygon_raw[0][0], list(centroid2d)[0][0], list(centroid2d)[0][1]]]
                 #print centroid3d
                 centroid_list.append(centroid3d)
+                #print polygon_raw
+                polygon_2d_raw = []
                 polygon_raw = []
-            else:       
+            else:
+                FACTOR = 10.0      
                 temp_array = map(float, line[2:].split(' '))
-                real_array = [temp_array[2], temp_array[0], temp_array[1]]
+                real_array = [temp_array[2]/FACTOR, temp_array[0]/FACTOR, temp_array[1]/FACTOR]
+                polygon_2d_raw.append([temp_array[0]/FACTOR, temp_array[1]/FACTOR])
                 polygon_raw.append(real_array)
     #with open('mass_list.txt') as f:
     #    mass_list = map(float, f.read().split('\n'))
