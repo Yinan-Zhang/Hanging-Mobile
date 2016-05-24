@@ -212,8 +212,8 @@ def main():
             else:
                 FACTOR = 10.0      
                 temp_array = map(float, line[2:].split(' '))
-                real_array = [temp_array[2]/FACTOR, temp_array[0]/FACTOR, temp_array[1]/FACTOR]
-                polygon_2d_raw.append([temp_array[0]/FACTOR, temp_array[1]/FACTOR])
+                real_array = [temp_array[2]/FACTOR, temp_array[1]/FACTOR, temp_array[0]/FACTOR]
+                polygon_2d_raw.append([temp_array[1]/FACTOR, temp_array[0]/FACTOR])
                 polygon_raw.append(real_array)
     #with open('mass_list.txt') as f:
     #    mass_list = map(float, f.read().split('\n'))
