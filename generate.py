@@ -19,6 +19,7 @@ from mpl_toolkits.axisartist.grid_finder import (FixedLocator, MaxNLocator,
                                                  DictFormatter)
 import constants
 import sdxf
+from math import sqrt, acos, cos, sin, pi, fabs, sin, asin
 
 #import matplotlib.units as units
 
@@ -60,6 +61,25 @@ def setup_axes2(fig, rect, radius, width):
     return ax1, aux_ax
 
 def generateBAR(radius, alpha, name):
+
+	halflen = constants.BAR_WIDTH/2.0
+	d=sdxf.Drawing()
+
+	#add drawing elements
+	d.append(sdxf.Arc(center=(0,0),radius=radius,startAngle=0,endAngle=90))
+	d.append(sdxf.Arc(center=(0,0),radius=radius+constants.BAR_WIDTH,startAngle=0,endAngle=90))
+	d.append(sdxf.Line(points=[(0,radius),(0,radius+constants.BAR_WIDTH)]))
+	d.append(sdxf.Line(points=[(radius,0),(radius+constants.BAR_WIDTH,0)]))
+	d.append(sdxf.Circle(center=(cos(alpha)*(radius+halflen),sin(alpha)*(radius+halflen)),radius=halflen/4.0))
+
+	#two holes
+	d.append(sdxf.Circle(center=(halflen,radius+halflen),radius=halflen/4.0))
+	d.append(sdxf.Circle(center=(radius+halflen, halflen),radius=halflen/4.0))
+
+
+	d.saveas('./img/' + name + '.dxf')
+
+	'''
 	fig = plt.figure(1)
 	ax2, aux_ax2 = setup_axes2(fig, 111, radius, constants.BAR_WIDTH)
 
@@ -69,13 +89,13 @@ def generateBAR(radius, alpha, name):
 	
 	ax2.set_aspect(1)
 	aux_ax2.set_aspect(1)
-	#plt.axes().set_aspect('equal', 'datalim')
 
 	plt.savefig('./img/'+name, bbox_inches='tight')
 	plt.clf()
+	'''
 
 
-def generatePNG(poly, name):
+def generatePNG(poly, centroid2d, name):
 	#poly = Polygon([(0, 0), (0, 2), (1, 1), (2, 2), (2, 0), (1, 0.8), (0, 0)])
 	x,y = poly.exterior.xy
 
@@ -83,6 +103,7 @@ def generatePNG(poly, name):
 
 	#add drawing elements
 	d.append(sdxf.LwPolyLine(points=list(poly.exterior.coords), flag=1))
+	d.append(sdxf.Line(points=[(centroid2d[0],centroid2d[1]),(centroid2d[0],centroid2d[1]+constants.BAR_WIDTH/2)]))
 
 	d.saveas('./img/' + name + '.dxf')
 

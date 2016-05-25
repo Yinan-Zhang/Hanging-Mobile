@@ -149,7 +149,8 @@ def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, polygon_2d_l
         rv.pos = tree_as_list[0]
         idx = centroid_list.index(tree_as_list[0])
 
-        generate.generatePNG(polygon_2d_list[idx], 'O'+str(idx))
+        centroid2d = list(polygon_2d_list[idx].centroid.coords)[0]
+        generate.generatePNG(polygon_2d_list[idx], centroid2d, 'O'+str(idx))
         
         rv.mass = mass_list[idx]
         cord_to_print = rv.pos
