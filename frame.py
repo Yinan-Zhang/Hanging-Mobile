@@ -3,6 +3,8 @@
 import math
 import numpy as np
 
+from math import sqrt
+
 # p3d defined as [[x1, y1, z1], [x2, y2, z2]]
 def global2local(p3dpair):
 	M = [[0, 0]]
@@ -23,7 +25,7 @@ def local2global(p3dpair, p2d, p2pair):
 	#p.append(p3dpair[0][0] + ratio*delta_x)
 	#p.append(p3dpair[0][1] + ratio*delta_y)
 	#p.append(p3dpair[0][2] + ratio*delta_z)
-
+	'''
 	p = []
 	ratio = p2d[0]/p2pair[1][0]
 	delta_x = p3dpair[1][0]-p3dpair[0][0] # x2-x1
@@ -31,8 +33,18 @@ def local2global(p3dpair, p2d, p2pair):
 	p.append(p3dpair[0][0] + ratio*delta_x)
 	p.append(p3dpair[0][1] + ratio*delta_y)
 	p.append(p3dpair[0][2] + p2d[1])
+	'''
+
+	def normalize_vec( vec ):
+		length = sqrt(vec[0]**2 + vec[1]**2)
+		return (vec[0]/length, vec[1]/length);
+
+	p1 = p3dpair[0];
+	p2 = p3dpair[1];
+	v = normalize_vec((p2[0]-p1[0], p2[1]-p1[1]));
+	c = (p1[0]+v[0]*p2d[0], p1[1]+v[1]*p2d[0], p1[2]+p2d[1])
 	
-	return p
+	return c
 
 def test_frame_funcs():
 	p = [[1, 1, 1], [2, 2, 2]]

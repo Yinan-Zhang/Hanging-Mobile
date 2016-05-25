@@ -70,20 +70,39 @@ def balance_bin_search(mass1, mass2, r1, r2, alpha_min, alpha_max, angle, min_tq
     else:
         return balance_bin_search(mass1, mass2, r1, r2, alpha_min, alpha, angle, min_tq_diff);
 
+'''
+def find_quarter_circle3d(point1, point2):
 
-def find_quarter_circle(point1, point2):
-    '''Return the center and radius of the quarter circle'''
+    def normalize_vec( vec ):
+        length = sqrt(vec[0]**2 + vec[1]**2 + vec[2]**2)
+        return (vec[0]/length, vec[1]/length, vec[2]/length);
+
     high = None; low = None;
-    if point1.y > point2.y:
+    if point1.z > point2.z:
         high = point1; low = point2;
     else:
         high = point2; low = point1;
- 
-    segment = Segment(low, high);
+
+    mid_point = ( (point1[0]-point[0]_/2.0, (point1[1]-point[1]_/2.0, (point1[2]-point[2]_/2.0 );
+    normal    = normalize_vec( (point2[0]-point1[0],point2[1]-point1[1],point2[2]-point1[2]) );
+    center3d = mid_point;
+'''
+def find_quarter_circle(point1, point2):
+    '''Return the center and radius of the quarter circle'''
+    segment = Segment(point1, point2);
     mid_point = Point( (point1.x+point2.x)/2.0, (point1.y+point2.y)/2.0 );
     normal = segment.normal();
     center = vec_plus(mid_point, vec_times(normal, segment.length()/2.0));
     radius = segment.length() / sqrt(2);
+
+    segment2 = Segment(point2, point1);
+    normal2 = segment2.normal();
+    center2 = vec_plus(mid_point, vec_times(normal2, segment2.length()/2.0));
+
+    if center.y > center2.y:
+        center = center2
+
+
     return center, radius;
 
 #center,r = find_quarter_circle(Point(0,0), Point(2,3 ))

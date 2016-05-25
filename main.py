@@ -9,7 +9,7 @@ import numpy as np
 import csv
 import operator
 import generate
-from math import sqrt, acos, cos, sin, pi, fabs, sin
+from math import sqrt, acos, cos, sin, pi, fabs, sin, asin
 
 def test():
     pos1 = Point( -10, 0 );
@@ -68,12 +68,17 @@ def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, polygon_2d_l
         #posleftright, T = frame.transfromto2D(np.matrix([p1, p2, aux_point]))
         posleftright = frame.global2local([p1, p2])
 
+
+        print posleftright[0], posleftright[1]
+
         center, radius, phi, alpha, pos = find_balance_point(rv.left.mass, rv.right.mass, Point(posleftright[0]), Point(posleftright[1]));
+
+        print phi
 
         # Computer theta
         x_proj = p2[0]
         y_proj = p2[1]
-        theta = acos(x_proj/sqrt(x_proj**2 + y_proj**2))
+        
 
         rv.center = center
         rv.radius = radius
@@ -85,7 +90,29 @@ def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, polygon_2d_l
         DENSITY = constants.DESITY_CM3 * constants.BAR_WIDTH * constants.BAR_HEIGHT #desity per cm
         rv.mass = rv.left.mass + rv.right.mass + DENSITY * rv.radius * pi / 2.0 # Plus the mass of the bar
         
-        center3d = frame.local2global([p1, p2], [list(center.coords)[0][0], list(center.coords)[0][1]], posleftright)
+        center3d = frame.local2global([p1, p2], [center.x, center.y], posleftright)
+
+        #right_pt = frame.local2global([p1, p2], [list(center.coords)[0][0], list(center.coords)[0][1]], posleftright)
+
+        theta = acos((x_proj-center3d[0])/(radius*cos(phi)))
+        if p2[0]>p1[0]:
+            theta = - theta
+            phi = phi - pi/2.0
+
+
+
+        # right end of bar in 3D
+        local = (radius * cos(phi) * cos(theta), radius * cos(phi) * sin(theta), radius * sin(phi))
+        print "right end: {0}".format( (local[0]+center3d[0], local[1]+center3d[1], local[2]+center3d[2]) )
+
+        # left end of bar in 3D 
+        local = (radius * cos(phi+pi/2.0) * cos(theta), radius * cos(phi+pi/2.0) * sin(theta), radius * sin(phi+pi/2.0))
+        print "left end: {0}".format( (local[0]+center3d[0], local[1]+center3d[1], local[2]+center3d[2]) )
+
+        # mass center in 3d 
+        print p1, p2
+
+
         cord_to_print = center3d
         
         output_list = [rv.node_id, 'BAR', cord_to_print[0], cord_to_print[1], cord_to_print[2], rv.radius, rv.phi, theta, rv.alpha, rv.mass]
