@@ -73,8 +73,10 @@ def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, polygon_2d_l
 
         print posleftright[0], posleftright[1]
 
-        posleftright[0] = (posleftright[0][0], posleftright[0][1]+10)
-        posleftright[1] = (posleftright[1][0], posleftright[1][1]+10)
+        high_end = posleftright[0][1] if(posleftright[0][1] > posleftright[1][1]) else posleftright[1][1]
+
+        posleftright[0] = (posleftright[0][0], high_end+5)
+        posleftright[1] = (posleftright[1][0], high_end+5)
 
         center, radius, phi, alpha, pos = find_balance_point(rv.left.mass, rv.right.mass, Point(posleftright[0]), Point(posleftright[1]));
 
@@ -91,6 +93,8 @@ def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, polygon_2d_l
         #rv.pos = frame.transfromto3D(np.matrix(list(pos.coords)), T, 1).tolist()
         rv.pos = [frame.local2global([p1, p2], [list(pos.coords)[0][0], list(pos.coords)[0][1]], posleftright)]
         rv.phi = phi
+
+        generate.generateBAR(radius, rv.alpha, 'B'+str(rv.node_id))
 
         DENSITY = constants.DESITY_CM3 * constants.BAR_WIDTH * constants.BAR_HEIGHT #desity per cm
         rv.mass = rv.left.mass + rv.right.mass + DENSITY * rv.radius * pi / 2.0 # Plus the mass of the bar
