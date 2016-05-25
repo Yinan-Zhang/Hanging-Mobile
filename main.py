@@ -63,11 +63,6 @@ def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, polygon_2d_l
 
         p1 = rv.left.pos[0]
         p2 = rv.right.pos[0]
-        aux_point = [(rv.left.pos[0][0]+rv.right.pos[0][0])/2.0, (rv.left.pos[0][1]+rv.right.pos[0][1])/2.0, (rv.left.pos[0][2]+rv.right.pos[0][2])/2.0 - 1.0]
-        
-        p1[2] = p1[2]# + constants.STRING_LEN
-        p2[2] = p2[2]# + constants.STRING_LEN
-        aux_point[2] = aux_point[2] #+ constants.STRING_LEN
         
         # in order to transform we at least need three points
         #posleftright, T = frame.transfromto2D(np.matrix([p1, p2, aux_point]))
@@ -76,8 +71,8 @@ def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, polygon_2d_l
         center, radius, phi, alpha, pos = find_balance_point(rv.left.mass, rv.right.mass, Point(posleftright[0]), Point(posleftright[1]));
 
         # Computer theta
-        x_proj = rv.right.pos[0][0]
-        y_proj = rv.right.pos[0][1]
+        x_proj = p2[0]
+        y_proj = p2[1]
         theta = acos(x_proj/sqrt(x_proj**2 + y_proj**2))
 
         rv.center = center
@@ -212,8 +207,8 @@ def main():
             else:
                 FACTOR = 10.0      
                 temp_array = map(float, line[2:].split(' '))
-                real_array = [temp_array[2]/FACTOR, temp_array[1]/FACTOR, temp_array[0]/FACTOR]
-                polygon_2d_raw.append([temp_array[1]/FACTOR, temp_array[0]/FACTOR])
+                real_array = [temp_array[2]/FACTOR, temp_array[0]/FACTOR, temp_array[1]/FACTOR]
+                polygon_2d_raw.append([temp_array[0]/FACTOR, temp_array[1]/FACTOR])
                 polygon_raw.append(real_array)
     #with open('mass_list.txt') as f:
     #    mass_list = map(float, f.read().split('\n'))
