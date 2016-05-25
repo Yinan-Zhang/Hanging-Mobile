@@ -61,6 +61,7 @@ def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, polygon_2d_l
         rv.left = buildTree(tree_as_list[1], centroid_list, mass_list, polygon_list, polygon_2d_list, node_id_ref)
         rv.right = buildTree(tree_as_list[2], centroid_list, mass_list, polygon_list, polygon_2d_list, node_id_ref)
 
+    
         p1 = rv.left.pos[0]
         p2 = rv.right.pos[0]
         
@@ -94,10 +95,15 @@ def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, polygon_2d_l
 
         #right_pt = frame.local2global([p1, p2], [list(center.coords)[0][0], list(center.coords)[0][1]], posleftright)
 
-        theta = acos((x_proj-center3d[0])/(radius*cos(phi)))
+        
         if p2[0]>p1[0]:
-            theta = - theta
-            phi = phi - pi/2.0
+            theta = acos((p2[0]-center3d[0])/(radius*cos(phi)))
+            if p2[1] < p1[1]:
+                theta = - theta
+        else:
+            theta = acos((p1[0]-center3d[0])/(radius*cos(phi)))
+            if p1[1] < p2[1]:
+                theta = - theta
 
 
 
