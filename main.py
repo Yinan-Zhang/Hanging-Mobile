@@ -64,6 +64,7 @@ def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, polygon_2d_l
     
         p1 = rv.left.pos[0]
         p2 = rv.right.pos[0]
+
         
         # in order to transform we at least need three points
         #posleftright, T = frame.transfromto2D(np.matrix([p1, p2, aux_point]))
@@ -71,6 +72,9 @@ def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, polygon_2d_l
 
 
         print posleftright[0], posleftright[1]
+
+        posleftright[0] = (posleftright[0][0], posleftright[0][1]+10)
+        posleftright[1] = (posleftright[1][0], posleftright[1][1]+10)
 
         center, radius, phi, alpha, pos = find_balance_point(rv.left.mass, rv.right.mass, Point(posleftright[0]), Point(posleftright[1]));
 
@@ -92,22 +96,25 @@ def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, polygon_2d_l
         rv.mass = rv.left.mass + rv.right.mass + DENSITY * rv.radius * pi / 2.0 # Plus the mass of the bar
         
         center3d = frame.local2global([p1, p2], [center.x, center.y], posleftright)
-
+        
         #right_pt = frame.local2global([p1, p2], [list(center.coords)[0][0], list(center.coords)[0][1]], posleftright)
 
-        
+        output_tree_structure = ['TREE', rv.node_id, rv.left.node_id, rv.right.node_id]
         if p2[0]>p1[0]:
             theta = acos((p2[0]-center3d[0])/(radius*cos(phi)))
             if p2[1] < p1[1]:
                 theta = - theta
+                output_tree_structure = ['TREE', rv.node_id, rv.right.node_id, rv.left.node_id]
         else:
             theta = acos((p1[0]-center3d[0])/(radius*cos(phi)))
             if p1[1] < p2[1]:
                 theta = - theta
+                output_tree_structure = ['TREE', rv.node_id, rv.right.node_id, rv.left.node_id]
 
 
 
         # right end of bar in 3D
+        print "center: {0}".format(center3d)
         local = (radius * cos(phi) * cos(theta), radius * cos(phi) * sin(theta), radius * sin(phi))
         print "right end: {0}".format( (local[0]+center3d[0], local[1]+center3d[1], local[2]+center3d[2]) )
 
@@ -126,7 +133,7 @@ def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, polygon_2d_l
             myfile.write(', '.join(map(str,output_list)))
             myfile.write('\r\n')
         #print ', '.join(map(str,output_list))
-        output_tree_structure = ['TREE', rv.node_id, rv.left.node_id, rv.right.node_id]
+        
         with open("TREE.csv", "a") as myfile:
             myfile.write(', '.join(map(str,output_tree_structure)))
             myfile.write('\r\n')
