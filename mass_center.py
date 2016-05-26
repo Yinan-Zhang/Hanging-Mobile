@@ -13,7 +13,7 @@ def mass_center(polygon):
 	if size <= 2:
 		print "not a polygon"
 		return
-	for i in range(0, size-1):
+	for i in range(0, size):
 		A = A + (point_list[i][0]*point_list[i+1][1]-point_list[i+1][0]*point_list[i][1])
 		Cx = Cx + (point_list[i][0]*point_list[i+1][1]-point_list[i+1][0]*point_list[i][1])*(point_list[i][0]+point_list[i+1][0])
 		Cy = Cy + (point_list[i][0]*point_list[i+1][1]-point_list[i+1][0]*point_list[i][1])*(point_list[i][1]+point_list[i+1][1])
