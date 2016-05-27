@@ -71,6 +71,7 @@ def generateBAR(radius, alpha, name):
 	d.append(sdxf.Line(points=[(0,radius),(0,radius+constants.BAR_WIDTH)]))
 	d.append(sdxf.Line(points=[(radius,0),(radius+constants.BAR_WIDTH,0)]))
 	d.append(sdxf.Circle(center=(cos(alpha)*(radius+halflen),sin(alpha)*(radius+halflen)),radius=0.05))
+	d.append(sdxf.Text(name,point=(cos(pi/2.0 - alpha)*(radius),sin(pi/2.0 - alpha)*(radius)), height=0.2))
 
 	#two holes
 	d.append(sdxf.Circle(center=(halflen,radius+halflen),radius=0.05))
@@ -104,6 +105,8 @@ def generatePNG(poly, centroid2d, name):
 	#add drawing elements
 	d.append(sdxf.LwPolyLine(points=list(poly.exterior.coords), flag=1))
 	d.append(sdxf.Line(points=[(centroid2d[0],centroid2d[1]),(centroid2d[0],centroid2d[1]+constants.BAR_WIDTH/2)]))
+	d.append(sdxf.Text(name,point=(centroid2d[0], centroid2d[1]), height=0.2))
+	d.append(sdxf.Circle(center=(centroid2d[0],centroid2d[1]+constants.BAR_WIDTH/2),radius=0.05))
 
 	d.saveas('./img/' + name + '.dxf')
 
