@@ -10,6 +10,18 @@ import csv
 import operator
 import generate
 from math import sqrt, acos, cos, sin, pi, fabs, sin, asin
+from copy import deepcopy
+
+def all_indices(value, qlist):
+    indices = []
+    idx = -1
+    while True:
+        try:
+            idx = qlist.index(value, idx+1)
+            indices.append(idx)
+        except ValueError:
+            break
+    return indices
 
 def test():
     pos1 = Point( -10, 0 );
@@ -71,7 +83,7 @@ def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, polygon_2d_l
         posleftright = frame.global2local([p1, p2])
 
 
-        print posleftright[0], posleftright[1]
+        #print posleftright[0], posleftright[1]
 
         high_end = posleftright[0][1] if(posleftright[0][1] > posleftright[1][1]) else posleftright[1][1]
 
@@ -80,7 +92,7 @@ def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, polygon_2d_l
 
         center, radius, phi, alpha, pos = find_balance_point(rv.left.mass, rv.right.mass, Point(posleftright[0]), Point(posleftright[1]));
 
-        print phi
+        #print phi
 
         # Computer theta
         x_proj = p2[0]
@@ -94,7 +106,7 @@ def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, polygon_2d_l
         rv.pos = [frame.local2global([p1, p2], [list(pos.coords)[0][0], list(pos.coords)[0][1]], posleftright)]
         rv.phi = phi
 
-        generate.generateBAR(radius, rv.alpha, 'B'+str(rv.node_id)+'_' + str(rv.radius))
+        generate.generateBAR(radius, rv.alpha, 'B'+str(rv.node_id))
 
         DENSITY = constants.DESITY_CM3 * constants.BAR_WIDTH * constants.BAR_HEIGHT #desity per cm
         rv.mass = rv.left.mass + rv.right.mass + DENSITY * rv.radius * pi / 2.0 # Plus the mass of the bar
@@ -104,7 +116,7 @@ def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, polygon_2d_l
         #right_pt = frame.local2global([p1, p2], [list(center.coords)[0][0], list(center.coords)[0][1]], posleftright)
 
         output_tree_structure = ['TREE', rv.node_id, rv.left.node_id, rv.right.node_id]
-        print rv.node_id
+        #print rv.node_id
         
         if p2[0]>p1[0]:
             theta = acos((p2[0]-center3d[0])/(radius*cos(phi)))
@@ -120,16 +132,16 @@ def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, polygon_2d_l
 
 
         # right end of bar in 3D
-        print "center: {0}".format(center3d)
-        local = (radius * cos(phi) * cos(theta), radius * cos(phi) * sin(theta), radius * sin(phi))
-        print "right end: {0}".format( (local[0]+center3d[0], local[1]+center3d[1], local[2]+center3d[2]) )
+        #print "center: {0}".format(center3d)
+        #local = (radius * cos(phi) * cos(theta), radius * cos(phi) * sin(theta), radius * sin(phi))
+        #print "right end: {0}".format( (local[0]+center3d[0], local[1]+center3d[1], local[2]+center3d[2]) )
 
         # left end of bar in 3D 
-        local = (radius * cos(phi+pi/2.0) * cos(theta), radius * cos(phi+pi/2.0) * sin(theta), radius * sin(phi+pi/2.0))
-        print "left end: {0}".format( (local[0]+center3d[0], local[1]+center3d[1], local[2]+center3d[2]) )
+        #local = (radius * cos(phi+pi/2.0) * cos(theta), radius * cos(phi+pi/2.0) * sin(theta), radius * sin(phi+pi/2.0))
+        #print "left end: {0}".format( (local[0]+center3d[0], local[1]+center3d[1], local[2]+center3d[2]) )
 
         # mass center in 3d 
-        print p1, p2
+        #print p1, p2
 
 
         cord_to_print = center3d
@@ -146,10 +158,15 @@ def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, polygon_2d_l
         #print ', '.join(map(str,output_tree_structure))
         return rv
     else:#leaf
+        
         rv = TreeNode(node_id_ref[0])
         node_id_ref[0]+=1
         rv.pos = tree_as_list[0]
-        idx = centroid_list.index(tree_as_list[0])
+        
+        #print centroid_list
+        idx = all_indices(tree_as_list[0], centroid_list)[0]
+        #idx = centroid_list.index(tree_as_list[0])
+        print tree_as_list[0], idx
 
         centroid2d = list(polygon_2d_list[idx].centroid.coords)[0]
         generate.generatePNG(polygon_2d_list[idx], centroid2d, 'O'+str(rv.node_id))
@@ -259,8 +276,11 @@ def main():
                 polygon_raw.append(real_array)
     #with open('mass_list.txt') as f:
     #    mass_list = map(float, f.read().split('\n'))
+    print centroid_list
+    #return 
 
-    tree = binary_space_partition.kdtree(centroid_list)
+    centroid_list_copy = deepcopy(centroid_list)
+    tree = binary_space_partition.kdtree(centroid_list_copy)
     #print tree
     buildTree(tree, centroid_list, mass_list, polygon_list, polygon_2d_list, [1])
     sortCSV("OBJ.csv", 0)

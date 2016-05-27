@@ -70,11 +70,11 @@ def generateBAR(radius, alpha, name):
 	d.append(sdxf.Arc(center=(0,0),radius=radius+constants.BAR_WIDTH,startAngle=0,endAngle=90))
 	d.append(sdxf.Line(points=[(0,radius),(0,radius+constants.BAR_WIDTH)]))
 	d.append(sdxf.Line(points=[(radius,0),(radius+constants.BAR_WIDTH,0)]))
-	d.append(sdxf.Circle(center=(cos(alpha)*(radius+halflen),sin(alpha)*(radius+halflen)),radius=halflen/4.0))
+	d.append(sdxf.Circle(center=(cos(alpha)*(radius+halflen),sin(alpha)*(radius+halflen)),radius=0.05))
 
 	#two holes
-	d.append(sdxf.Circle(center=(halflen,radius+halflen),radius=halflen/4.0))
-	d.append(sdxf.Circle(center=(radius+halflen, halflen),radius=halflen/4.0))
+	d.append(sdxf.Circle(center=(halflen,radius+halflen),radius=0.05))
+	d.append(sdxf.Circle(center=(radius+halflen, halflen),radius=0.05))
 
 
 	d.saveas('./img/' + name + '.dxf')
