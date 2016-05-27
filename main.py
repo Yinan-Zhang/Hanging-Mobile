@@ -94,7 +94,7 @@ def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, polygon_2d_l
         rv.pos = [frame.local2global([p1, p2], [list(pos.coords)[0][0], list(pos.coords)[0][1]], posleftright)]
         rv.phi = phi
 
-        generate.generateBAR(radius, rv.alpha, 'B'+str(rv.node_id))
+        generate.generateBAR(radius, rv.alpha, 'B'+str(rv.node_id)+'_' + str(rv.radius))
 
         DENSITY = constants.DESITY_CM3 * constants.BAR_WIDTH * constants.BAR_HEIGHT #desity per cm
         rv.mass = rv.left.mass + rv.right.mass + DENSITY * rv.radius * pi / 2.0 # Plus the mass of the bar
@@ -104,6 +104,8 @@ def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, polygon_2d_l
         #right_pt = frame.local2global([p1, p2], [list(center.coords)[0][0], list(center.coords)[0][1]], posleftright)
 
         output_tree_structure = ['TREE', rv.node_id, rv.left.node_id, rv.right.node_id]
+        print rv.node_id
+        
         if p2[0]>p1[0]:
             theta = acos((p2[0]-center3d[0])/(radius*cos(phi)))
             if p2[1] < p1[1]:
@@ -150,7 +152,7 @@ def buildTree(tree_as_list, centroid_list, mass_list, polygon_list, polygon_2d_l
         idx = centroid_list.index(tree_as_list[0])
 
         centroid2d = list(polygon_2d_list[idx].centroid.coords)[0]
-        generate.generatePNG(polygon_2d_list[idx], centroid2d, 'O'+str(idx))
+        generate.generatePNG(polygon_2d_list[idx], centroid2d, 'O'+str(rv.node_id))
         
         rv.mass = mass_list[idx]
         cord_to_print = rv.pos
