@@ -50,7 +50,8 @@ def recursive_find_balance_point(mass1, mass2, pos1, pos2, center, radius, phi, 
 
     diff = (tqr_l1 + tqr_l2 - tqr_r1 - tqr_r2)
     #print tqr_l1, tqr_l2, trq_r1, tqr_r2, left_alpha, right_alpha
-    #print tqr_l1, trq_r1, diff, left_alpha, right_alpha
+    #print tqr_l1, tqr_l2, tqr_r1, tqr_r2
+    #print left_mass_center.x-balance.x, right_mass_center.x-balance.x
 
     #pdb.set_trace();
 
@@ -149,7 +150,7 @@ def find_quarter_circle(point1, point2):
 def arc_mass_center(center, radius, phi, arc ):
     x = (radius * sin(phi+arc) - radius * sin(phi) ) / (pi * arc)
     y = ( - radius * cos(phi+arc) + radius * cos(phi) ) / (pi * arc)
-    return Point( x, y)
+    return Point( center.x+x, center.y+y)
 
 #center,r = find_quarter_circle(Point(0,0), Point(2,3 ))
 #print center
