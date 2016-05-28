@@ -24,7 +24,7 @@ def find_balance_point( mass1, mass2, pos1, pos2 ):
     #point = Point(center.x + radius * cos(phi+alpha), center.y + radius * sin(phi+alpha));
 
     # Call recursive method to find a better balance.
-    center, radius, phi, alpha = recursive_find_balance_point(mass1, mass2, pos1, pos2, center, radius, phi, pi/2.0, 0.0, 0.00002);
+    center, radius, phi, alpha = recursive_find_balance_point(mass1, mass2, pos1, pos2, center, radius, phi, pi/2.0, 0.0, 0.000002);
 
     print alpha
     print "-------------"
