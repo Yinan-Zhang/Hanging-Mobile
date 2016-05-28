@@ -1,6 +1,8 @@
 import sys, os
 from geometry2d import *
 from math import sqrt, acos, cos, sin, pi, fabs
+from constants import *
+import pdb
 
 def find_balance_point( mass1, mass2, pos1, pos2 ):
     '''Find the balance point for a cross bar that hangs two points mass.
@@ -17,9 +19,49 @@ def find_balance_point( mass1, mass2, pos1, pos2 ):
     phi = acos( ( pos2.x-center.x ) / float(radius) );# The angle between the right-end point and the horizon.
     cos_alpha_phi = ( (pos1.x * mass1 + pos2.x * mass2)/(mass1+mass2) - center.x ) / radius;
     alpha = acos(cos_alpha_phi) - phi;
+    print alpha
+
+    #point = Point(center.x + radius * cos(phi+alpha), center.y + radius * sin(phi+alpha));
+
+    # Call recursive method to find a better balance.
+    center, radius, phi, alpha = recursive_find_balance_point(mass1, mass2, pos1, pos2, center, radius, phi, pi/2.0, 0.0, 0.00002);
+
+    print alpha
+    print "-------------"
 
     point = Point(center.x + radius * cos(phi+alpha), center.y + radius * sin(phi+alpha));
+
     return center, radius, phi, alpha, point
+
+def recursive_find_balance_point(mass1, mass2, pos1, pos2, center, radius, phi, left_alpha, right_alpha, limit ):
+
+    alpha = (left_alpha + right_alpha) / 2.0;
+
+    #if fabs(left_alpha - right_alpha) <= limit:
+    #    return center, radius, phi, alpha;
+
+    balance = Point(center.x + radius * cos(phi+alpha), center.y + sin(phi+alpha));
+    left_mass_center = arc_mass_center(center, radius, phi+alpha, pi/2.0 - alpha )
+    right_mass_center = arc_mass_center(center, radius, phi, alpha )
+    tqr_l1 = mass1 * fabs(pos1.x - balance.x);
+    tqr_l2 = (pi/2.0 - alpha) * radius * BAR_WIDTH * BAR_HEIGHT * DESITY_CM3 * fabs( left_mass_center.x - center.x )
+    tqr_r1 = mass2 * fabs(pos2.x - balance.x);
+    tqr_r2 = alpha * radius * BAR_WIDTH * BAR_HEIGHT * DESITY_CM3 * fabs(right_mass_center.x - center.x);
+
+    diff = (tqr_l1 + tqr_l2 - tqr_r1 - tqr_r2)
+    #print tqr_l1, tqr_l2, trq_r1, tqr_r2, left_alpha, right_alpha
+    #print tqr_l1, trq_r1, diff, left_alpha, right_alpha
+
+    #pdb.set_trace();
+
+    if fabs(diff) <= limit:
+        return center, radius, phi, alpha;
+
+    if diff > 0:
+        return recursive_find_balance_point(mass1, mass2, pos1, pos2, center, radius, phi, left_alpha, alpha, limit);
+    else:
+        return recursive_find_balance_point(mass1, mass2, pos1, pos2, center, radius, phi, alpha, right_alpha, limit);
+
 
 def evaluate_balance_point(mass1, mass2, pos1, pos2, pos_b, center, radius, alpha):
     '''
@@ -102,8 +144,12 @@ def find_quarter_circle(point1, point2):
     if center.y > center2.y:
         center = center2
 
-
     return center, radius;
+
+def arc_mass_center(center, radius, phi, arc ):
+    x = (radius * sin(phi+arc) - radius * sin(phi) ) / (pi * arc)
+    y = ( - radius * cos(phi+arc) + radius * cos(phi) ) / (pi * arc)
+    return Point( x, y)
 
 #center,r = find_quarter_circle(Point(0,0), Point(2,3 ))
 #print center
