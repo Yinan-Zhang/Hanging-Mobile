@@ -17,17 +17,17 @@ def find_balance_point( mass1, mass2, pos1, pos2 ):
     center, radius = find_quarter_circle(pos1, pos2);
 
     phi = acos( ( pos2.x-center.x ) / float(radius) );# The angle between the right-end point and the horizon.
-    cos_alpha_phi = ( (pos1.x * mass1 + pos2.x * mass2)/(mass1+mass2) - center.x ) / radius;
-    alpha = acos(cos_alpha_phi) - phi;
-    print alpha
+    #cos_alpha_phi = ( (pos1.x * mass1 + pos2.x * mass2)/(mass1+mass2) - center.x ) / radius;
+    #alpha = acos(cos_alpha_phi) - phi;
+    #print alpha
 
     #point = Point(center.x + radius * cos(phi+alpha), center.y + radius * sin(phi+alpha));
 
     # Call recursive method to find a better balance.
     center, radius, phi, alpha = recursive_find_balance_point(mass1, mass2, pos1, pos2, center, radius, phi, pi/2.0, 0.0, 0.000002);
 
-    print alpha
-    print "-------------"
+    #print alpha
+    #print "-------------"
 
     point = Point(center.x + radius * cos(phi+alpha), center.y + radius * sin(phi+alpha));
 
