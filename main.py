@@ -282,7 +282,8 @@ def main():
     centroid_list_copy = deepcopy(centroid_list)
     tree = binary_space_partition.kdtree(centroid_list_copy)
     #print tree
-    buildTree(tree, centroid_list, mass_list, polygon_list, polygon_2d_list, [1])
+    root = buildTree(tree, centroid_list, mass_list, polygon_list, polygon_2d_list, [1])
+    print root.pos
     sortCSV("OBJ.csv", 0)
     sortCSV("TREE.csv", 1)
     combineFile(["OBJ.csv","TREE.csv"], "OBJECT.csv")

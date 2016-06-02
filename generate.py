@@ -80,7 +80,7 @@ def generateBAR(radius, alpha, name):
 
 	d.saveas('./img/' + name + '.dxf')
 
-	'''
+	
 	fig = plt.figure(1)
 	ax2, aux_ax2 = setup_axes2(fig, 111, radius, constants.BAR_WIDTH)
 
@@ -93,7 +93,7 @@ def generateBAR(radius, alpha, name):
 
 	plt.savefig('./img/'+name, bbox_inches='tight')
 	plt.clf()
-	'''
+	
 
 
 def generatePNG(poly, centroid2d, name):
@@ -105,12 +105,12 @@ def generatePNG(poly, centroid2d, name):
 	#add drawing elements
 	d.append(sdxf.LwPolyLine(points=list(poly.exterior.coords), flag=1))
 	d.append(sdxf.Line(points=[(centroid2d[0],centroid2d[1]),(centroid2d[0],centroid2d[1]+constants.BAR_WIDTH/2)]))
-	d.append(sdxf.Text(name,point=(centroid2d[0], centroid2d[1]), height=0.2))
+	d.append(sdxf.Text(name,point=(centroid2d[0]+0.1, centroid2d[1]), height=0.2))
 	d.append(sdxf.Circle(center=(centroid2d[0],centroid2d[1]+constants.BAR_WIDTH/2),radius=0.05))
 
 	d.saveas('./img/' + name + '.dxf')
 
-	'''
+	
 	#output PNG
 	fig = plt.figure(1)
 	ax = fig.add_subplot(1,1,1)
@@ -118,7 +118,7 @@ def generatePNG(poly, centroid2d, name):
 	ax.set_aspect(1)
 	plt.savefig('./img/'+name, bbox_inches='tight')
 	plt.clf()
-	'''
+	
 
 
 #generatePNG(Polygon([(0, 0), (0, 2), (1, 1), (2, 2), (2, 0), (1, 0.8), (0, 0)]), "hehe")
